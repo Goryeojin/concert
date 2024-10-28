@@ -36,7 +36,7 @@ public class QueueEntity {
 
     private LocalDateTime expiredAt;
 
-    public static Queue of(QueueEntity entity) {
+    public Queue of(QueueEntity entity) {
         return Queue.builder()
                 .id(entity.getId())
                 .userId(entity.getUser().getId())

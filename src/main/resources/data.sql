@@ -1,6 +1,4 @@
-INSERT INTO users (name) VALUES ('Alice');
-INSERT INTO users (name) VALUES ('Bob');
-INSERT INTO users (name) VALUES ('Charlie');
+INSERT INTO users (name) VALUES ('Ryeojin');
 
 INSERT INTO point (user_id, amount) VALUES ('1', 0);
 
@@ -12,17 +10,17 @@ INSERT INTO concert (title, description, status) VALUES
 ('Concert 5', 'Description of Concert 5', 'UNAVAILABLE');
 
 INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)
-VALUES (1, '2024-10-10 12:00:00', '2024-10-20 23:59:59', '2024-10-25 18:00:00');
+VALUES (1, '2024-10-10 12:00:00', '2024-11-30 23:59:59', '2024-12-01 18:00:00');
 
 INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)
-VALUES (1, '2024-10-12 09:00:00', '2024-10-22 23:59:59', '2024-10-28 19:30:00');
+VALUES (1, '2024-10-12 09:00:00', '2024-11-30 23:59:59', '2024-12-24 19:30:00');
 
 INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)
-VALUES (1, '2024-10-15 10:00:00', '2024-10-25 23:59:59', '2024-10-30 20:00:00');
+VALUES (1, '2024-10-15 10:00:00', '2024-11-30 23:59:59', '2024-10-30 20:00:00');
 
 -- 예약 가능한 시간이 아직 오지 않은 경우
 INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)
-VALUES (1, '2024-11-01 12:00:00', '2024-11-10 23:59:59', '2024-11-15 18:00:00');
+VALUES (1, '2024-11-30 12:00:00', '2024-12-1 23:59:59', '2024-12-24 18:00:00');
 
 -- 예약 마감 시간이 지난 경우
 INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)

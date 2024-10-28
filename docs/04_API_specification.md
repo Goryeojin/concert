@@ -22,12 +22,16 @@
 ```json
 {
   "token": "a1b2c3d4",
-  "createdAt": "2024-10-10 00:00:00"
+  "status" "WAITING"
+  "createdAt": "2024-10-10 00:00:00",
+  "rank": "1"
 }
 ```
 - **Response**:
   - `token`: String (토큰 UUID)
+  - `status` Enum (대기 상태)
   - `createdAt`: DateTime (생성 시각)
+  - `rank`: int (대기 순번)
 
 ### Error
 ```json
@@ -37,39 +41,7 @@
 }
 ```
 
-## 2. 대기열 토큰 조회
-
-### Description
-- 사용자의 발급된 대기열 토큰을 조회한다.
-
-### Request
-
-- **URI**: `api/v1/queue/tokens`
-- **Method**: GET
-- **Headers**:
-    - `User-Id`: Long (사용자 ID)
-
-### Response
-
-```json
-{
-  "token": "a1b2c3d4",
-  "createdAt": "2024-10-10 00:00:00"
-}
-```
-- **Response**:
-  - `token`: String (토큰 UUID)
-  - `createdAt`: DateTime (생성 시각)
-
-### Error
-```json
-{
-  "code": 404,
-  "message": "User Not Found"
-}
-```
-
-## 3. 대기열 상태 조회
+## 2. 대기열 상태 조회
 
 ### Description
 - 폴링 방식으로 사용자의 대기열 상태를 조회한다.
@@ -79,22 +51,24 @@
 - **URI**: `api/v1/queue/status?userId={userId}`
 - **Method**: GET
 - **Headers**:
-    - `Token`: String (토큰 UUID)
-    - `User-Id`: Long (사용자 ID)
+  - `Token`: String (토큰 UUID)
+  - `User-Id`: Long (사용자 ID)
 
 ### Response
 
 ```json
 {
-  "createdAt": "2024-10-10 00:00:00",
-  "status": "WAITING",
-  "remainingQueueCount": 10
+  "status": "ACTIVE",
+  "rank": 0
+  "enteredAt": "2024-10-10 00:00:00",
+  "expiredAt": "2024-10-10 00:00:00",
 }
 ```
 - **Response**:
-  - `createdAt`: DateTime (생성시각)
-  - `status`: Enum (`WAITING`: 대기 / `ACTIVE`: 활성화 / `EXPIRED`: 만료)
-  - `remainingQueueCount`: Long (남은 대기 수)
+  - `status`: Enum (`WAITING`: 대기 / `ACTIVE`: 활성화)
+  - `rank`: int (대기 순번)
+  - `enteredAt`: DateTime (활성화 시각)
+  - `expiredAt`: DateTime (만료 시각)
 
 ### Error
 ```json
@@ -110,7 +84,7 @@
 }
 ```
 
-## 4. 콘서트 예약 가능 일정 조회
+## 3. 콘서트 예약 가능 일정 조회
 
 ### Description
 - 특정 콘서트의 예약 가능한 일정을 조회한다.
@@ -120,9 +94,9 @@
 - **URI**: `api/v1/concerts/{concertId}/schedules`
 - **Method**: GET
 - **Path Variable**:
-    - `concertId`: Long (콘서트 ID)
+  - `concertId`: Long (콘서트 ID)
 - **Headers**:
-    - `Token`: String (토큰 UUID)
+  - `Token`: String (토큰 UUID)
 
 ### Response
 
@@ -133,12 +107,14 @@
     {
       "scheduleId": 1,
       "concertAt": "2024-10-10 00:00:00",
-      "reservationAt": "2024-10-10 00:00:00"
+      "reservationAt": "2024-10-10 00:00:00",
+      "deadline": "2024-10-10 00:00:00"
     },
     {
       "scheduleId": 2,
       "concertAt": "2024-10-10 00:00:00",
-      "reservationAt": "2024-10-10 00:00:00"
+      "reservationAt": "2024-10-10 00:00:00".
+      "deadline": "2024-10-10 00:00:00"
     }
   ]
 }
@@ -149,6 +125,7 @@
     - `scheduleId`: Long (일정 ID)
     - `concertAt`: DateTime (콘서트 시각)
     - `reservationAt`: DateTime (예약 시각)
+    - `deadline`: DateTime (예약 마감 시각)
 
 ### Error
 ```json
@@ -170,7 +147,7 @@
 }
 ```
 
-## 5. 콘서트 잔여 좌석 조회
+## 4. 콘서트 잔여 좌석 조회
 
 ### Description
 - 특정 콘서트 일정의 잔여 좌석을 조회한다.
@@ -180,10 +157,10 @@
 - **URI**: `api/v1/concerts/{concertId}/schedules/{scheduleId}/seats`
 - **Method**: GET
 - **Path Variable**:
-    - `concertId`: Long (콘서트 ID)
-    - `scheduleId`: Long (일정 ID)
+  - `concertId`: Long (콘서트 ID)
+  - `scheduleId`: Long (일정 ID)
 - **Headers**:
-    - `Token`: String (토큰 UUID)
+  - `Token`: String (토큰 UUID)
 
 ### Response
 
@@ -244,19 +221,18 @@
 }
 ```
 
-## 6. 좌석 예약
+## 5. 좌석 예약
 
 ### Description
 - 콘서트 좌석을 예약한다.
-- 좌석을 여러개 예약할 수 있다.
 
 ### Request
 
 - **URI**: `api/v1/reservations`
 - **Method**: POST
 - **Headers**:
-    - `Token`: String (토큰 UUID)
-    - `Content-Type`: application/json
+  - `Token`: String (토큰 UUID)
+  - `Content-Type`: application/json
 
 
 - **Body**:
@@ -265,13 +241,13 @@
   "userId": 1,
   "concertId": 1,
   "scheduleId": 1,
-  "seatIds": [1, 2]
+  "seatId": 1
 }
 ```
-  - `userId`: Long (사용자 ID)
-  - `concertId`: Long (콘서트 ID)
-  - `scheduleId`: Long (일정 ID)
-  - `seatIds`: List (선택한 좌석 목록)
+- `userId`: Long (사용자 ID)
+- `concertId`: Long (콘서트 ID)
+- `scheduleId`: Long (일정 ID)
+- `seatId`: int (선택한 좌석 ID)
 
 ### Response
 
@@ -281,16 +257,10 @@
   "concertId": 1,
   "concertName": "콘서트",
   "concertAt": "2024-10-10 00:00:00",
-  "seats": [
-    {
+  "seat": {
       "seatNumber": 1,
       "seatPrice": 10000
     },
-    {
-      "seatNumber": 2,
-      "seatPrice": 10000
-    }
-  ],
   "totalPrice": 20000,
   "reservationStatus": "PAYMENT_WAITING"
 }
@@ -345,7 +315,7 @@
 }
 ```
 
-## 7. 결제
+## 6. 결제
 
 ### Description
 - 예약에 대한 결제를 진행한다.
@@ -356,8 +326,9 @@
 - **URI**: `api/v1/payments`
 - **Method**: POST
 - **Headers**:
-    - `Token`: String (토큰 UUID)
-    - `Content-Type`: application/json
+  - `Token`: String (토큰 UUID)
+  - `Content-Type`: application/json
+
 
 - **Body**:
 ```json
@@ -415,19 +386,19 @@
 }
 ```
 
-## 8. 잔액 충전
+## 7. 잔액 충전
 
 ### Description
 - 사용자의 잔액을 충전합니다.
 
 ### Request
 
-- **URI**: `api/v1/users/{userId}/balance`
+- **URI**: `api/v1/users/{userId}/point`
 - **Method**: PATCH
 - **Path Variable**:
-    - `userId`: Long (사용자 ID)
+  - `userId`: Long (사용자 ID)
 - **Headers**:
-    - `Content-Type`: application/json
+  - `Content-Type`: application/json
 
 - **Body**:
 ```json
@@ -469,17 +440,17 @@
 }
 ```
 
-## 9. 잔액 조회
+## 8. 잔액 조회
 
 ### Description
 - 사용자의 현재 잔액을 조회한다.
 
 ### Request
 
-- **URI**: `api/v1/users/{userId}/balance`
+- **URI**: `api/v1/users/{userId}/point`
 - **Method**: GET
 - **Path Variable**:
-    - `userId`: Long (사용자 ID)
+  - `userId`: Long (사용자 ID)
 
 ### Response
 ```json

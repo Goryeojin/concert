@@ -2,7 +2,9 @@ package hhplus.concert.infra.repository.jpa;
 
 import hhplus.concert.infra.entity.SeatEntity;
 import hhplus.concert.support.type.SeatStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,5 +21,7 @@ public interface SeatJpaRepository extends JpaRepository<SeatEntity, Long> {
                                @Param("scheduleId") Long scheduleId,
                                @Param("seatStatus") SeatStatus seatStatus);
 
-    Optional<SeatEntity> findBySeatNo(Integer seatNo);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from seat s where s.id = ?1")
+    Optional<SeatEntity> findBySeatId(Long seatId);
 }

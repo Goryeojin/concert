@@ -4,8 +4,8 @@ import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.repository.QueueRepository;
 import hhplus.concert.infra.entity.QueueEntity;
 import hhplus.concert.infra.repository.jpa.QueueJpaRepository;
-import hhplus.concert.support.exception.CustomException;
-import hhplus.concert.support.exception.ErrorCode;
+import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.type.QueueStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,15 +24,15 @@ public class QueueRepositoryImpl implements QueueRepository {
     @Override
     public Queue findQueue(Long userId) {
         return queueJpaRepository.findByUserIdAndStatusNot(userId, QueueStatus.EXPIRED)
-                .map(QueueEntity::of)
+                .map(entity -> entity.of(entity))
                 .orElse(null);
     }
 
     @Override
     public Queue findQueue(String token) {
         return queueJpaRepository.findByToken(token)
-                .map(QueueEntity::of)
-                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
+                .map(entity -> entity.of(entity))
+                .orElseThrow(() -> new CoreException(ErrorCode.TOKEN_NOT_FOUND));
     }
 
     @Override
@@ -47,19 +47,19 @@ public class QueueRepositoryImpl implements QueueRepository {
 
     @Override
     public Queue save(Queue token) {
-        return QueueEntity.of(queueJpaRepository.save(new QueueEntity().from(token)));
+        QueueEntity entity = queueJpaRepository.save(new QueueEntity().from(token));
+        return entity.of(entity);
     }
 
     @Override
     public void expireToken(Queue token) {
-        System.out.println("token = " + token);
         queueJpaRepository.updateStatusAndExpiredAtById(token.id(), token.status(), token.expiredAt());
     }
 
     @Override
     public List<Queue> findExpiredTokens(LocalDateTime now, QueueStatus queueStatus) {
         return queueJpaRepository.findExpiredTokens(now, queueStatus).stream()
-                .map(QueueEntity::of)
+                .map(entity -> entity.of(entity))
                 .toList();
     }
 
@@ -67,7 +67,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     public List<Queue> findWaitingTokens(long limit) {
         Pageable pageable = PageRequest.of(0, (int) limit);
         return queueJpaRepository.findWaitingTokens(pageable).getContent().stream()
-                .map(QueueEntity::of)
+                .map(entity -> entity.of(entity))
                 .toList();
     }
 }

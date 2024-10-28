@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class QueueService {
 
     private final QueueRepository queueRepository;
+
     public Queue getToken(Long userId) {
         return queueRepository.findQueue(userId);
     }

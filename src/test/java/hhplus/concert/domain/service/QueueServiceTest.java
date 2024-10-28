@@ -2,8 +2,8 @@ package hhplus.concert.domain.service;
 
 import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.repository.QueueRepository;
-import hhplus.concert.support.exception.CustomException;
-import hhplus.concert.support.exception.ErrorCode;
+import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.type.QueueStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,7 +74,7 @@ class QueueServiceTest {
                 .build();
 
         // when & then
-        CustomException exception = assertThrows(CustomException.class,
+        CoreException exception = assertThrows(CoreException.class,
                 () -> queueService.checkQueueStatus(expiredQueue));
 
         // 예외코드 UNAUTHORIZED
@@ -114,10 +114,10 @@ class QueueServiceTest {
         String tokenString = "token";
         Queue queue = mock(Queue.class);
         when(queueRepository.findQueue(tokenString)).thenReturn(queue);
-        doThrow(new CustomException(ErrorCode.UNAUTHORIZED)).when(queue).validateToken();
+        doThrow(new CoreException(ErrorCode.UNAUTHORIZED)).when(queue).validateToken();
 
         // when & then
-        assertThrows(CustomException.class, () -> queueService.validateToken(tokenString));
+        assertThrows(CoreException.class, () -> queueService.validateToken(tokenString));
     }
 
     @Test

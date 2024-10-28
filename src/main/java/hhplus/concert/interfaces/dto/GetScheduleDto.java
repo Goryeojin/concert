@@ -13,20 +13,19 @@ public class GetScheduleDto {
         Long concertId,
         List<ScheduleDto> schedules
     ) {
-    }
-
-    public static ScheduleResponse toResponse(Long concertId, List<ConcertSchedule> schedules) {
-        List<ScheduleDto> list = (schedules != null) ? schedules.stream()
-                .map(schedule -> ScheduleDto.builder()
-                        .scheduleId(schedule.id())
-                        .concertAt(schedule.concertAt())
-                        .reservationAt(schedule.reservationAt())
-                        .deadline(schedule.deadline())
-                        .build())
-                .toList() : Collections.emptyList();
-        return ScheduleResponse.builder()
-                .concertId(concertId)
-                .schedules(list)
-                .build();
+        public static ScheduleResponse of(Long concertId, List<ConcertSchedule> schedules) {
+            List<ScheduleDto> list = (schedules != null) ? schedules.stream()
+                    .map(schedule -> ScheduleDto.builder()
+                            .scheduleId(schedule.id())
+                            .concertAt(schedule.concertAt())
+                            .reservationAt(schedule.reservationAt())
+                            .deadline(schedule.deadline())
+                            .build())
+                    .toList() : Collections.emptyList();
+            return ScheduleResponse.builder()
+                    .concertId(concertId)
+                    .schedules(list)
+                    .build();
+        }
     }
 }

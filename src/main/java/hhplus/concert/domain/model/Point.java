@@ -1,7 +1,7 @@
 package hhplus.concert.domain.model;
 
-import hhplus.concert.support.exception.CustomException;
-import hhplus.concert.support.exception.ErrorCode;
+import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorCode;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public record Point(
 
     public Point usePoint(int useAmount) {
         if (this.amount < useAmount) {
-            throw new CustomException(ErrorCode.PAYMENT_FAILED_AMOUNT);
+            throw new CoreException(ErrorCode.PAYMENT_FAILED_AMOUNT);
         }
         return Point.builder()
                 .id(id)

@@ -19,7 +19,6 @@ public class ReservationDto {
     ) {
         public ReservationCommand toCommand(String token) {
             return ReservationCommand.builder()
-                    .token(token)
                     .userId(this.userId)
                     .concertId(this.concertId)
                     .scheduleId(this.scheduleId)
@@ -37,18 +36,17 @@ public class ReservationDto {
         SeatDto seat,
         ReservationStatus reservationStatus
     ) {
-    }
-
-    public static ReservationResponse toResponse(ReservationResult reservation) {
-        return ReservationResponse.builder()
-                .reservationId(reservation.reservationId())
-                .concertId(reservation.concertId())
-                .concertAt(reservation.concertAt())
-                .seat(SeatDto.builder()
-                        .seatId(reservation.seat().id())
-                        .seatNo(reservation.seat().seatNo())
-                        .seatPrice(reservation.seat().seatPrice()).build())
-                .reservationStatus(reservation.status())
-                .build();
+        public static ReservationResponse of(ReservationResult reservation) {
+            return ReservationResponse.builder()
+                    .reservationId(reservation.reservationId())
+                    .concertId(reservation.concertId())
+                    .concertAt(reservation.concertAt())
+                    .seat(SeatDto.builder()
+                            .seatId(reservation.seat().id())
+                            .seatNo(reservation.seat().seatNo())
+                            .seatPrice(reservation.seat().seatPrice()).build())
+                    .reservationStatus(reservation.status())
+                    .build();
+        }
     }
 }

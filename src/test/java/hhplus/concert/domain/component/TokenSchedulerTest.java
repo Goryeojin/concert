@@ -15,10 +15,10 @@ import java.util.List;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-class TokenStatusChangerTest {
+class TokenSchedulerTest {
 
     @InjectMocks
-    private TokenStatusChanger tokenStatusChanger;
+    private TokenScheduler tokenScheduler;
 
     @Mock
     private QueueRepository queueRepository;
@@ -45,7 +45,7 @@ class TokenStatusChangerTest {
                 .willReturn(tokens);
 
         // when
-        tokenStatusChanger.expireTokens();
+        tokenScheduler.expireTokens();
 
         // then
         verify(queueRepository, times(1)).findExpiredTokens(any(LocalDateTime.class), eq(QueueStatus.ACTIVE));
@@ -79,7 +79,7 @@ class TokenStatusChangerTest {
                 .willReturn(tokens);
 
         // when
-        tokenStatusChanger.manageActiveTokens();
+        tokenScheduler.manageActiveTokens();
 
         // then
         verify(queueRepository, times(1)).findByStatus(QueueStatus.ACTIVE);

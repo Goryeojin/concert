@@ -2,13 +2,9 @@ package hhplus.concert.application.facade;
 
 import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.repository.QueueRepository;
-import hhplus.concert.domain.service.QueueService;
-import hhplus.concert.domain.service.UserService;
-import hhplus.concert.infra.repository.jpa.QueueJpaRepository;
-import hhplus.concert.support.exception.CustomException;
-import hhplus.concert.support.exception.ErrorCode;
+import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.type.QueueStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +12,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,16 +27,7 @@ public class QueueFacadeIntegrationTest {
     private QueueFacade queueFacade;
 
     @Autowired
-    private QueueService queueService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
     private QueueRepository queueRepository;
-
-    @Autowired
-    private QueueJpaRepository queueJpaRepository;
 
     private final Long USER_ID = 1L;
 
@@ -92,7 +81,7 @@ public class QueueFacadeIntegrationTest {
 
         // when & then
         assertThatThrownBy(() -> queueFacade.getStatus(token.token(), userId))
-                .isInstanceOf(CustomException.class)
+                .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED);
     }
 
@@ -109,5 +98,30 @@ public class QueueFacadeIntegrationTest {
         assertThat(queueStatus).isNotNull();
         assertThat(queueStatus.token()).isEqualTo(token.token());
         assertThat(queueStatus.status()).isEqualTo(QueueStatus.ACTIVE);
+    }
+
+    @Test
+    @Transactional
+    void 토큰이_활성_상태인_사용자가_50명인_경우_51번째_사용자는_대기_상태의_토큰을_받는다() {
+        // given
+        List<Queue> tokenList = new ArrayList<>();
+
+        // 50명의 대기자를 대기열에 추가
+        for(long l = 1; l <= 50; l++) {
+            Queue dummyToken = queueFacade.createToken(l);
+            tokenList.add(dummyToken);
+        }
+
+        // when
+        Queue token = queueFacade.createToken(51L);
+
+        // then
+        // 앞선 50명의 토큰이 ACTIVE 상태인지 검증
+        for (Queue queue : tokenList) {
+            assertThat(queue.status()).isEqualTo(QueueStatus.ACTIVE);
+        }
+
+        // 51번째 사용자의 토큰이 WAITING 상태인지 검증
+        assertThat(token.status()).isEqualTo(QueueStatus.WAITING);
     }
 }

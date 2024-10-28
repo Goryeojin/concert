@@ -55,7 +55,7 @@ public class ReservationEntity {
                 .build();
     }
 
-    public static Reservation of(ReservationEntity entity) {
+    public Reservation of(ReservationEntity entity) {
         return Reservation.builder()
                 .id(entity.id)
                 .concertId(entity.getConcert().getId())

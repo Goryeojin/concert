@@ -1,7 +1,7 @@
 package hhplus.concert.domain.model;
 
-import hhplus.concert.support.exception.CustomException;
-import hhplus.concert.support.exception.ErrorCode;
+import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.type.ReservationStatus;
 import lombok.Builder;
 
@@ -32,15 +32,15 @@ public record Reservation(
     public void checkValidation(Long userId) {
         // 이미 결제되었다면 결제 실패
         if (status == ReservationStatus.COMPLETED) {
-            throw new CustomException(ErrorCode.ALREADY_PAID);
+            throw new CoreException(ErrorCode.ALREADY_PAID);
         }
         // 예약하고 5분 안에 결제 신청했는지 확인
         if (reservationAt.isBefore(LocalDateTime.now().minusMinutes(5))) {
-            throw new CustomException(ErrorCode.PAYMENT_TIMEOUT);
+            throw new CoreException(ErrorCode.PAYMENT_TIMEOUT);
         }
         // 예약자와 결제자가 같은지 확인
         if (!Objects.equals(userId, userId())) {
-            throw new CustomException(ErrorCode.PAYMENT_DIFFERENT_USER);
+            throw new CoreException(ErrorCode.PAYMENT_DIFFERENT_USER);
         }
     }
 

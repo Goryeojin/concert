@@ -22,13 +22,12 @@ public class PaymentDto {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime paymentAt
     ) {
-    }
-
-    public static PaymentResponse toResponse(Payment payment) {
-        return PaymentResponse.builder()
-                .paymentId(payment.id())
-                .amount(payment.amount())
-                .paymentAt(payment.paymentAt())
-                .build();
+        public static PaymentResponse of(Payment payment) {
+            return PaymentResponse.builder()
+                    .paymentId(payment.id())
+                    .amount(payment.amount())
+                    .paymentAt(payment.paymentAt())
+                    .build();
+        }
     }
 }

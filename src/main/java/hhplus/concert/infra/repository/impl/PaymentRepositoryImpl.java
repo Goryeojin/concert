@@ -7,6 +7,8 @@ import hhplus.concert.infra.repository.jpa.PaymentJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class PaymentRepositoryImpl implements PaymentRepository {
@@ -15,6 +17,14 @@ public class PaymentRepositoryImpl implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        return PaymentEntity.of(paymentJpaRepository.save(PaymentEntity.from(payment)));
+        PaymentEntity entity = paymentJpaRepository.save(PaymentEntity.from(payment));
+        return entity.of();
+    }
+
+    @Override
+    public List<Payment> findByUserId(Long userId) {
+        return paymentJpaRepository.findAllByUserId(userId).stream()
+                .map(PaymentEntity::of)
+                .toList();
     }
 }

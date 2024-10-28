@@ -5,6 +5,7 @@ import hhplus.concert.domain.service.PointService;
 import hhplus.concert.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class PointFacade {
         return pointService.getPoint(userId);
     }
 
+    @Transactional
     public Point chargePoint(Long userId, Long amount) {
         userService.existsUser(userId);
         return pointService.chargePoint(userId, amount);

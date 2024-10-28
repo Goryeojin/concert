@@ -1,5 +1,6 @@
 package hhplus.concert.support.exception;
 
+import hhplus.concert.support.code.ErrorCode;
 import lombok.Builder;
 import org.springframework.http.ResponseEntity;
 

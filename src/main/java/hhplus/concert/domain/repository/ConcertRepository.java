@@ -2,12 +2,9 @@ package hhplus.concert.domain.repository;
 
 import hhplus.concert.domain.model.Concert;
 import hhplus.concert.domain.model.ConcertSchedule;
-import hhplus.concert.domain.model.Reservation;
 import hhplus.concert.domain.model.Seat;
-import hhplus.concert.support.type.ReservationStatus;
 import hhplus.concert.support.type.SeatStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ConcertRepository {
@@ -24,6 +21,4 @@ public interface ConcertRepository {
     void saveSeat(Seat seat);
 
     Seat findSeat(Long seatId);
-
-    List<Reservation> findExpiredReservation(ReservationStatus reservationStatus, LocalDateTime localDateTime);
 }

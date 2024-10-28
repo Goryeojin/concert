@@ -3,13 +3,9 @@ package hhplus.concert.application.facade;
 import hhplus.concert.application.dto.SeatsResult;
 import hhplus.concert.domain.model.Concert;
 import hhplus.concert.domain.model.ConcertSchedule;
-import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.model.Seat;
 import hhplus.concert.domain.repository.ConcertRepository;
-import hhplus.concert.support.exception.CustomException;
-import hhplus.concert.support.exception.ErrorCode;
 import hhplus.concert.support.type.SeatStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 
@@ -28,40 +23,19 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFOR
 class ConcertFacadeIntegrationTest {
 
     @Autowired
-    private QueueFacade queueFacade;
-
-    @Autowired
     private ConcertFacade concertFacade;
 
     @Autowired
     private ConcertRepository concertRepository;
-    private String token;
-
-    @BeforeEach
-    void setUp() {
-        Queue queue = queueFacade.createToken(1L);
-        token = queue.token(); // 토큰 검증 통과를 위한 토큰 생성
-    }
 
     @Test
     void 토큰이_유효하면_전체_콘서트를_조회할_수_있다() {
         // when
-        List<Concert> concerts = concertFacade.getConcerts(token);
+        List<Concert> concerts = concertFacade.getConcerts();
 
         // then
-        assertDoesNotThrow(() -> concertFacade.getConcerts(token)); // 에러가 발생하지 않음을 검증
+        assertDoesNotThrow(() -> concertFacade.getConcerts()); // 에러가 발생하지 않음을 검증
         assertThat(concerts).hasSize(2); // Test DB에 미리 넣어놓은 데이터
-    }
-
-    @Test
-    void 토큰이_유효하지_않으면_콘서트_조회_시_UNAUTHORIZED_에러를_반환한다() {
-        // given
-        queueFacade.createToken(1L); // 새로 토큰을 발급하면 기존 토큰은 만료가 된다.
-
-        // when & then
-        assertThatThrownBy(() -> concertFacade.getConcerts(token))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED);
     }
 
     @Test
@@ -71,7 +45,7 @@ class ConcertFacadeIntegrationTest {
         Concert concert = concerts.get(0);
 
         // when
-        List<ConcertSchedule> schedules = concertFacade.getConcertSchedules(token, concert.id());
+        List<ConcertSchedule> schedules = concertFacade.getConcertSchedules(concert.id());
 
         // then
         LocalDateTime now = LocalDateTime.now();
@@ -91,7 +65,7 @@ class ConcertFacadeIntegrationTest {
         ConcertSchedule schedule = concertSchedules.get(0);
 
         // when
-        SeatsResult response = concertFacade.getSeats(token, concert.id(), schedule.id());
+        SeatsResult response = concertFacade.getSeats(concert.id(), schedule.id());
 
         // then
         assertThat(response.seats().get(0).status()).isEqualTo(SeatStatus.AVAILABLE);

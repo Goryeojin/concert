@@ -1,13 +1,14 @@
 package hhplus.concert.application.facade;
 
 import hhplus.concert.domain.model.*;
-import hhplus.concert.domain.repository.*;
-import hhplus.concert.domain.service.*;
-import hhplus.concert.support.exception.CustomException;
-import hhplus.concert.support.exception.ErrorCode;
-import hhplus.concert.support.type.ConcertStatus;
+import hhplus.concert.domain.repository.PaymentRepository;
+import hhplus.concert.domain.repository.ReservationRepository;
+import hhplus.concert.domain.service.ConcertService;
+import hhplus.concert.domain.service.PointService;
+import hhplus.concert.domain.service.QueueService;
+import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.type.ReservationStatus;
-import hhplus.concert.support.type.SeatStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+//@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class PaymentFacadeIntegrationTest {
 
     @Autowired
@@ -30,31 +34,16 @@ class PaymentFacadeIntegrationTest {
     private QueueService queueService;
 
     @Autowired
-    private ReservationService reservationService;
-
-    @Autowired
     private PointService pointService;
 
     @Autowired
     private ConcertService concertService;
 
     @Autowired
-    private PaymentService paymentService;
-
-    @Autowired
-    private QueueRepository queueRepository;
-
-    @Autowired
     private ReservationRepository reservationRepository;
 
     @Autowired
     private PaymentRepository paymentRepository;
-
-    @Autowired
-    private PointRepository pointRepository;
-
-    @Autowired
-    private ConcertRepository concertRepository;
 
     private final Long USER_ID = 1L;
     private Reservation reservation;
@@ -97,7 +86,7 @@ class PaymentFacadeIntegrationTest {
         // when & then
         // 잔액을 충전하지 않을 경우 잔액은 0이기 때문에 결제에 실패한다.
         assertThatThrownBy(() -> paymentFacade.payment(token, reservation.id(), USER_ID))
-                .isInstanceOf(CustomException.class)
+                .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PAYMENT_FAILED_AMOUNT);
     }
 
@@ -105,7 +94,7 @@ class PaymentFacadeIntegrationTest {
     void 예약자와_결제자_정보가_상이할_경우_PAYMENT_DIFFERENT_USER_에러를_반환한다() {
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, reservation.id(), 2L)) // 예약자 ID: 1L, 결제자 ID: 2L
-                .isInstanceOf(CustomException.class)
+                .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PAYMENT_DIFFERENT_USER);
     }
 
@@ -117,7 +106,7 @@ class PaymentFacadeIntegrationTest {
         reservationRepository.save(timeHasPassedReservation);
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, timeHasPassedReservation.id(), USER_ID))
-                .isInstanceOf(CustomException.class)
+                .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PAYMENT_TIMEOUT);
     }
 
@@ -129,7 +118,42 @@ class PaymentFacadeIntegrationTest {
         reservationRepository.save(alreadyReserved);
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, alreadyReserved.id(), USER_ID))
-                .isInstanceOf(CustomException.class)
+                .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ALREADY_PAID);
+    }
+
+    @Test
+    void 사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
+        // given
+        pointService.chargePoint(USER_ID, 100_000L);
+
+        // when
+        AtomicInteger successCnt = new AtomicInteger(0);
+        AtomicInteger failCnt = new AtomicInteger(0);
+
+        final int threadCount = 5;
+        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+        for(int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                try {
+                    paymentFacade.payment(token, reservation.id(), USER_ID);
+                    successCnt.incrementAndGet();
+                } catch(Exception e) {
+                    failCnt.incrementAndGet();
+                }
+                finally {
+                    countDownLatch.countDown();
+                }
+            }).start();
+        }
+        countDownLatch.await();
+
+        Thread.sleep(1000);
+
+        // 결제 요청이 한 번만 수행됐는지 검증한다.
+        assertThat(successCnt.intValue()).isOne();
+        // 실패한 횟수가 threadCount 에서 성공한 횟수를 뺀 값과 같은지 검증한다.
+        assertThat(failCnt.intValue()).isEqualTo(threadCount - successCnt.intValue());
     }
 }

@@ -29,7 +29,7 @@ public class PointEntity {
 
     private LocalDateTime lastUpdatedAt;
 
-    public static Point of(PointEntity entity) {
+    public Point of(PointEntity entity) {
         return Point.builder()
                 .id(entity.getId())
                 .userId(entity.getUser().getId())

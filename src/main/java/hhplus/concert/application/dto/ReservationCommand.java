@@ -4,7 +4,6 @@ import lombok.Builder;
 
 @Builder
 public record ReservationCommand(
-        String token,
         Long userId,
         Long concertId,
         Long scheduleId,

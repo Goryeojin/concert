@@ -44,13 +44,13 @@ public class PaymentEntity {
                 .build();
     }
 
-    public Payment of(PaymentEntity entity) {
+    public Payment of() {
         return Payment.builder()
-                .id(entity.getId())
-                .reservationId(entity.getReservation().getId())
-                .userId(entity.getUser().getId())
-                .amount(entity.getAmount())
-                .paymentAt(entity.getPaymentAt())
+                .id(this.id)
+                .reservationId(this.reservation.getId())
+                .userId(this.user.id)
+                .amount(this.amount)
+                .paymentAt(this.paymentAt)
                 .build();
     }
 }

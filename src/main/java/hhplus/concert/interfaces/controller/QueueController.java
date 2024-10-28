@@ -4,6 +4,7 @@ import hhplus.concert.application.facade.QueueFacade;
 import hhplus.concert.domain.model.Queue;
 import hhplus.concert.interfaces.dto.QueueDto;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class QueueController {
      */
     @GetMapping("/status")
     public ResponseEntity<QueueDto.QueueResponse> getStatus(
-            @RequestHeader("Token") String token,
+            @RequestHeader("Token") @NotBlank String token,
             @RequestHeader("User-Id") Long userId
     ) {
         Queue queue = queueFacade.getStatus(token, userId);

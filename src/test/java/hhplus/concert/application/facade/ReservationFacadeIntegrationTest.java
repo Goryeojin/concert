@@ -106,7 +106,7 @@ class ReservationFacadeIntegrationTest {
         final ExecutorService executorService = Executors.newFixedThreadPool(100);
         final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
-        for(long l = 1; l <= threadCount; l++) {
+        for (long l = 1; l <= threadCount; l++) {
             // 좌석 예약 요청 객체 생성
             ReservationCommand command = ReservationCommand.builder()
                     .userId(l)
@@ -115,8 +115,8 @@ class ReservationFacadeIntegrationTest {
                     .seatId(1L)
                     .build();
 
-            executorService.submit(()->{
-                try{
+            executorService.submit(() -> {
+                try {
                     // 좌석 예약 호출
                     reservationFacade.reservation(command);
                 } catch (Exception e) {
@@ -129,9 +129,8 @@ class ReservationFacadeIntegrationTest {
         }
         countDownLatch.await();
 
-        // 같은 콘서트 같은 일정 같은 좌석으로 예약이 하나만 잡혔는지 검증한다.
         List<Reservation> reservations = reservationRepository.findByConcertIdAndScheduleIdAndSeatId(1L, 1L, 1L);
-
+        // 같은 콘서트 같은 일정 같은 좌석으로 예약이 하나만 잡혔는지 검증한다.
         assertThat(reservations.size()).isOne();
         // 해당 좌석이 UNAVAILABLE 상태로 변경되었는지 검증한다.
         assertThat(concertRepository.findSeat(1L).status()).isEqualTo(SeatStatus.UNAVAILABLE);

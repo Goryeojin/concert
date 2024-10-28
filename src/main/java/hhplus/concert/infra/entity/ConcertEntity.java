@@ -29,12 +29,12 @@ public class ConcertEntity {
     @Enumerated(value = EnumType.STRING)
     private ConcertStatus status;
 
-    public Concert of(ConcertEntity entity) {
+    public Concert of() {
         return Concert.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .status(entity.getStatus())
+                .id(this.id)
+                .title(this.title)
+                .description(this.description)
+                .status(this.status)
                 .build();
     }
 

@@ -18,13 +18,13 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     @Override
     public Payment save(Payment payment) {
         PaymentEntity entity = paymentJpaRepository.save(PaymentEntity.from(payment));
-        return entity.of(entity);
+        return entity.of();
     }
 
     @Override
     public List<Payment> findByUserId(Long userId) {
         return paymentJpaRepository.findAllByUserId(userId).stream()
-                .map(entity -> entity.of(entity))
+                .map(PaymentEntity::of)
                 .toList();
     }
 }

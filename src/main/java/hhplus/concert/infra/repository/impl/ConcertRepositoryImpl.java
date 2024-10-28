@@ -4,6 +4,8 @@ import hhplus.concert.domain.model.Concert;
 import hhplus.concert.domain.model.ConcertSchedule;
 import hhplus.concert.domain.model.Seat;
 import hhplus.concert.domain.repository.ConcertRepository;
+import hhplus.concert.infra.entity.ConcertEntity;
+import hhplus.concert.infra.entity.ConcertScheduleEntity;
 import hhplus.concert.infra.entity.SeatEntity;
 import hhplus.concert.infra.repository.jpa.ConcertJpaRepository;
 import hhplus.concert.infra.repository.jpa.ConcertScheduleJpaRepository;
@@ -29,7 +31,7 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     @Override
     public List<Concert> findConcerts() {
         return concertJpaRepository.findAll().stream()
-                .map(entity -> entity.of(entity))
+                .map(ConcertEntity::of)
                 .collect(Collectors.toList());
     }
 
@@ -37,28 +39,28 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     public List<ConcertSchedule> findConcertSchedules(Long concertId) {
         LocalDateTime now = LocalDateTime.now();
         return concertScheduleJpaRepository.findByConcertIdAndReservationAtBeforeAndDeadlineAfter(concertId, now, now).stream()
-                        .map(entity -> entity.of(entity))
+                        .map(ConcertScheduleEntity::of)
                         .toList();
     }
 
     @Override
     public Concert findConcert(Long concertId) {
         return concertJpaRepository.findById(concertId)
-                .map(entity -> entity.of(entity))
+                .map(ConcertEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorCode.CONCERT_NOT_FOUND));
     }
 
     @Override
     public List<Seat> findSeats(Long concertId, Long scheduleId, SeatStatus seatStatus) {
         return seatJpaRepository.findSeats(concertId, scheduleId, seatStatus).stream()
-                .map(entity -> entity.of(entity))
+                .map(SeatEntity::of)
                 .toList();
     }
 
     @Override
     public ConcertSchedule findConcertSchedule(Long scheduleId) {
         return concertScheduleJpaRepository.findById(scheduleId)
-                .map(entity -> entity.of(entity))
+                .map(ConcertScheduleEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorCode.SCHEDULE_NOT_FOUND));
     }
 
@@ -70,7 +72,7 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     @Override
     public Seat findSeat(Long seatId) {
         return seatJpaRepository.findBySeatId(seatId)
-                .map(entity -> entity.of(entity))
+                .map(SeatEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorCode.SEAT_NOT_FOUND));
     }
 }

@@ -37,14 +37,14 @@ public class SeatEntity {
     @Column(nullable = false)
     private int seatPrice;
 
-    public Seat of(SeatEntity entity) {
+    public Seat of() {
         return Seat.builder()
-                .id(entity.getId())
-                .concertScheduleId(entity.getConcertSchedule().getId())
-                .seatNo(entity.getSeatNo())
-                .status(entity.getStatus())
-                .reservationAt(entity.getReservationAt())
-                .seatPrice(entity.getSeatPrice())
+                .id(this.id)
+                .concertScheduleId(this.concertSchedule.getId())
+                .seatNo(this.seatNo)
+                .status(this.status)
+                .reservationAt(this.reservationAt)
+                .seatPrice(this.seatPrice)
                 .build();
     }
 

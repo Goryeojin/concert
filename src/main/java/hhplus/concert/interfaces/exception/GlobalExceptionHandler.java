@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -38,5 +39,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handle(HttpMessageNotReadableException ex) {
         log.error("Unable to read HTTP message: {}", ex.getMessage());
         return ErrorResponse.toResponseEntity(ErrorCode.HTTP_MESSAGE_NOT_READABLE);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handle(MissingRequestHeaderException ex) {
+        log.error("Missing Request Header: {}", ex.getMessage());
+        return ErrorResponse.toResponseEntity(ErrorCode.MISSING_TOKEN);
     }
 }

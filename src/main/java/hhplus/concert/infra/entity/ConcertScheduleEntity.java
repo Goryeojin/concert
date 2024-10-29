@@ -35,11 +35,11 @@ public class ConcertScheduleEntity {
 
     public ConcertSchedule of() {
         return ConcertSchedule.builder()
-                .id(this.id)
-                .concertId(this.concert.getId())
-                .reservationAt(this.reservationAt)
-                .deadline(this.deadline)
-                .concertAt(this.concertAt)
+                .id(id)
+                .concertId(concert.getId())
+                .reservationAt(reservationAt)
+                .deadline(deadline)
+                .concertAt(concertAt)
                 .build();
     }
 

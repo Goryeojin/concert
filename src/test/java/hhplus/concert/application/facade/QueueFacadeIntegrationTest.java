@@ -2,8 +2,8 @@ package hhplus.concert.application.facade;
 
 import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.repository.QueueRepository;
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ public class QueueFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> queueFacade.getStatus(token.token(), userId))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED);
+                .hasMessageContaining(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test
@@ -102,12 +102,14 @@ public class QueueFacadeIntegrationTest {
 
     @Test
     @Transactional
-    void 토큰이_활성_상태인_사용자가_50명인_경우_51번째_사용자는_대기_상태의_토큰을_받는다() {
+    void 토큰이_활성_상태인_사용자가_50명인_경우_이후_요청자는_대기_상태의_토큰을_받는다() {
         // given
         List<Queue> tokenList = new ArrayList<>();
+        int activeCnt = 0;
+        int waitingCnt = 0;
 
         // 50명의 대기자를 대기열에 추가
-        for(long l = 1; l <= 50; l++) {
+        for(long l = 1; l <= 100; l++) {
             Queue dummyToken = queueFacade.createToken(l);
             tokenList.add(dummyToken);
         }
@@ -118,10 +120,18 @@ public class QueueFacadeIntegrationTest {
         // then
         // 앞선 50명의 토큰이 ACTIVE 상태인지 검증
         for (Queue queue : tokenList) {
-            assertThat(queue.status()).isEqualTo(QueueStatus.ACTIVE);
+            QueueStatus status = queue.status();
+            if (status.equals(QueueStatus.ACTIVE)) {
+                activeCnt++;
+            } else if (status.equals(QueueStatus.WAITING)){
+                waitingCnt++;
+            }
         }
 
-        // 51번째 사용자의 토큰이 WAITING 상태인지 검증
-        assertThat(token.status()).isEqualTo(QueueStatus.WAITING);
+        // 충전 요청 성공 횟수가 스레드 갯수와 같은지 검증한다.
+        assertThat(activeCnt + waitingCnt).isEqualTo(100);
+
+        // 충전된 금액의 정합성이 보장되는지 검증한다.
+        assertThat(activeCnt).isEqualTo(50);
     }
 }

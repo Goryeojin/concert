@@ -1,7 +1,7 @@
 package hhplus.concert.domain.model;
 
 import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -16,10 +16,10 @@ public record ConcertSchedule(
 ) {
     public void checkStatus() {
         if (reservationAt().isAfter(LocalDateTime.now())) {
-            throw new CoreException(ErrorCode.BEFORE_RESERVATION_AT);
+            throw new CoreException(ErrorType.BEFORE_RESERVATION_AT, "예약 시간: " + reservationAt);
         }
         if (deadline().isBefore(LocalDateTime.now())) {
-            throw new CoreException(ErrorCode.AFTER_DEADLINE);
+            throw new CoreException(ErrorType.AFTER_DEADLINE, "마감 시간: " + deadline);
         }
     }
 }

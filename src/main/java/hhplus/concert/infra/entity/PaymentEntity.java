@@ -46,11 +46,11 @@ public class PaymentEntity {
 
     public Payment of() {
         return Payment.builder()
-                .id(this.id)
-                .reservationId(this.reservation.getId())
-                .userId(this.user.id)
-                .amount(this.amount)
-                .paymentAt(this.paymentAt)
+                .id(id)
+                .reservationId(reservation.getId())
+                .userId(user.getId())
+                .amount(amount)
+                .paymentAt(paymentAt)
                 .build();
     }
 }

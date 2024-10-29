@@ -2,8 +2,8 @@ package hhplus.concert.domain.service;
 
 import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.repository.QueueRepository;
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -74,11 +75,9 @@ class QueueServiceTest {
                 .build();
 
         // when & then
-        CoreException exception = assertThrows(CoreException.class,
-                () -> queueService.checkQueueStatus(expiredQueue));
-
-        // 예외코드 UNAUTHORIZED
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.UNAUTHORIZED);
+        assertThatThrownBy(() -> queueService.checkQueueStatus(expiredQueue))
+                .isInstanceOf(CoreException.class)
+                .hasMessageContaining(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test
@@ -111,13 +110,18 @@ class QueueServiceTest {
     @Test
     void 토큰_유효성_체크_대기상태거나_만료한다면_에러를_반환한다() {
         // given
-        String tokenString = "token";
-        Queue queue = mock(Queue.class);
+        String tokenString = "test";
+        Queue queue = Queue.builder()
+                .token("test")
+                .status(QueueStatus.WAITING)
+                .build();
         when(queueRepository.findQueue(tokenString)).thenReturn(queue);
-        doThrow(new CoreException(ErrorCode.UNAUTHORIZED)).when(queue).validateToken();
 
         // when & then
         assertThrows(CoreException.class, () -> queueService.validateToken(tokenString));
+        assertThatThrownBy(() -> queueService.validateToken(tokenString))
+                .isInstanceOf(CoreException.class)
+                .hasMessageContaining(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test

@@ -5,7 +5,7 @@ import hhplus.concert.domain.repository.QueueRepository;
 import hhplus.concert.infra.entity.QueueEntity;
 import hhplus.concert.infra.repository.jpa.QueueJpaRepository;
 import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,15 +24,15 @@ public class QueueRepositoryImpl implements QueueRepository {
     @Override
     public Queue findQueue(Long userId) {
         return queueJpaRepository.findByUserIdAndStatusNot(userId, QueueStatus.EXPIRED)
-                .map(entity -> entity.of(entity))
+                .map(QueueEntity::of)
                 .orElse(null);
     }
 
     @Override
     public Queue findQueue(String token) {
         return queueJpaRepository.findByToken(token)
-                .map(entity -> entity.of(entity))
-                .orElseThrow(() -> new CoreException(ErrorCode.TOKEN_NOT_FOUND));
+                .map(QueueEntity::of)
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "토큰값: " + token));
     }
 
     @Override
@@ -47,8 +47,7 @@ public class QueueRepositoryImpl implements QueueRepository {
 
     @Override
     public Queue save(Queue token) {
-        QueueEntity entity = queueJpaRepository.save(new QueueEntity().from(token));
-        return entity.of(entity);
+        return queueJpaRepository.save(new QueueEntity().from(token)).of();
     }
 
     @Override
@@ -59,7 +58,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     @Override
     public List<Queue> findExpiredTokens(LocalDateTime now, QueueStatus queueStatus) {
         return queueJpaRepository.findExpiredTokens(now, queueStatus).stream()
-                .map(entity -> entity.of(entity))
+                .map(QueueEntity::of)
                 .toList();
     }
 
@@ -67,7 +66,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     public List<Queue> findWaitingTokens(long limit) {
         Pageable pageable = PageRequest.of(0, (int) limit);
         return queueJpaRepository.findWaitingTokens(pageable).getContent().stream()
-                .map(entity -> entity.of(entity))
+                .map(QueueEntity::of)
                 .toList();
     }
 }

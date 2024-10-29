@@ -31,11 +31,6 @@ public class ConcertFacade {
         ConcertSchedule schedule = concertService.scheduleInfo(scheduleId);
         List<Seat> seats = concertService.getSeats(concert.id(), schedule.id(), SeatStatus.AVAILABLE);
 
-        return SeatsResult.builder()
-                .scheduleId(schedule.id())
-                .concertId(schedule.concertId())
-                .concertAt(schedule.concertAt())
-                .seats(seats)
-                .build();
+        return SeatsResult.from(schedule, seats);
     }
 }

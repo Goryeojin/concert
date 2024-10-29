@@ -5,7 +5,7 @@ import hhplus.concert.domain.repository.PointRepository;
 import hhplus.concert.infra.entity.PointEntity;
 import hhplus.concert.infra.repository.jpa.PointJpaRepository;
 import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -18,8 +18,8 @@ public class PointRepositoryImpl implements PointRepository {
     @Override
     public Point findPoint(Long userId) {
         return pointJpaRepository.findByUserId(userId)
-                .map(entity -> entity.of(entity))
-                .orElseThrow(() -> new CoreException(ErrorCode.INTERNAL_SERVER_ERROR));
+                .map(PointEntity::of)
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "사용자 ID: " + userId));
     }
 
     @Override

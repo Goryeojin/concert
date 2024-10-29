@@ -29,12 +29,12 @@ public class PointEntity {
 
     private LocalDateTime lastUpdatedAt;
 
-    public Point of(PointEntity entity) {
+    public Point of() {
         return Point.builder()
-                .id(entity.getId())
-                .userId(entity.getUser().getId())
-                .amount(entity.getAmount())
-                .lastUpdatedAt(entity.getLastUpdatedAt())
+                .id(id)
+                .userId(user.getId())
+                .amount(amount)
+                .lastUpdatedAt(lastUpdatedAt)
                 .build();
     }
 

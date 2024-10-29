@@ -31,10 +31,10 @@ public class ConcertEntity {
 
     public Concert of() {
         return Concert.builder()
-                .id(this.id)
-                .title(this.title)
-                .description(this.description)
-                .status(this.status)
+                .id(id)
+                .title(title)
+                .description(description)
+                .status(status)
                 .build();
     }
 

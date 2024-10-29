@@ -1,5 +1,6 @@
 package hhplus.concert.application.dto;
 
+import hhplus.concert.domain.model.ConcertSchedule;
 import hhplus.concert.domain.model.Seat;
 import lombok.Builder;
 
@@ -13,4 +14,12 @@ public record SeatsResult(
         LocalDateTime concertAt,
         List<Seat> seats
 ) {
+    public static SeatsResult from(ConcertSchedule schedule, List<Seat> seats) {
+        return SeatsResult.builder()
+                .scheduleId(schedule.id())
+                .concertId(schedule.concertId())
+                .concertAt(schedule.concertAt())
+                .seats(seats)
+                .build();
+    }
 }

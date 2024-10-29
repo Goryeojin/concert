@@ -18,7 +18,7 @@ public class PointRepositoryImpl implements PointRepository {
     @Override
     public Point findPoint(Long userId) {
         return pointJpaRepository.findByUserId(userId)
-                .map(entity -> entity.of(entity))
+                .map(PointEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 

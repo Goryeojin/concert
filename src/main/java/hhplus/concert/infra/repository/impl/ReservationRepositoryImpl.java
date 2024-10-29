@@ -21,28 +21,27 @@ public class ReservationRepositoryImpl implements ReservationRepository {
 
     @Override
     public Reservation save(Reservation reservation) {
-        ReservationEntity entity = reservationJpaRepository.save(ReservationEntity.from(reservation));
-        return entity.of(entity);
+        return reservationJpaRepository.save(ReservationEntity.from(reservation)).of();
     }
 
     @Override
     public Reservation findById(Long reservationId) {
         return reservationJpaRepository.findByReservationId(reservationId)
-                .map(entity -> entity.of(entity))
+                .map(ReservationEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorCode.RESERVATION_NOT_FOUND));
     }
 
     @Override
     public List<Reservation> findByConcertIdAndScheduleIdAndSeatId(Long concertId, Long scheduleId, Long seatId) {
         return reservationJpaRepository.findByConcertIdAndScheduleIdAndSeatId(concertId, scheduleId, seatId).stream()
-                .map(entity -> entity.of(entity))
+                .map(ReservationEntity::of)
                 .toList();
     }
 
     @Override
     public List<Reservation> findExpiredReservation(ReservationStatus reservationStatus, LocalDateTime localDateTime) {
         return reservationJpaRepository.findByStatusAndReservationAtBefore(reservationStatus, localDateTime).stream()
-                .map(entity -> entity.of(entity))
+                .map(ReservationEntity::of)
                 .toList();
     }
 }

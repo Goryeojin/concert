@@ -24,14 +24,14 @@ public class QueueRepositoryImpl implements QueueRepository {
     @Override
     public Queue findQueue(Long userId) {
         return queueJpaRepository.findByUserIdAndStatusNot(userId, QueueStatus.EXPIRED)
-                .map(entity -> entity.of(entity))
+                .map(QueueEntity::of)
                 .orElse(null);
     }
 
     @Override
     public Queue findQueue(String token) {
         return queueJpaRepository.findByToken(token)
-                .map(entity -> entity.of(entity))
+                .map(QueueEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorCode.TOKEN_NOT_FOUND));
     }
 
@@ -47,8 +47,7 @@ public class QueueRepositoryImpl implements QueueRepository {
 
     @Override
     public Queue save(Queue token) {
-        QueueEntity entity = queueJpaRepository.save(new QueueEntity().from(token));
-        return entity.of(entity);
+        return queueJpaRepository.save(new QueueEntity().from(token)).of();
     }
 
     @Override
@@ -59,7 +58,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     @Override
     public List<Queue> findExpiredTokens(LocalDateTime now, QueueStatus queueStatus) {
         return queueJpaRepository.findExpiredTokens(now, queueStatus).stream()
-                .map(entity -> entity.of(entity))
+                .map(QueueEntity::of)
                 .toList();
     }
 
@@ -67,7 +66,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     public List<Queue> findWaitingTokens(long limit) {
         Pageable pageable = PageRequest.of(0, (int) limit);
         return queueJpaRepository.findWaitingTokens(pageable).getContent().stream()
-                .map(entity -> entity.of(entity))
+                .map(QueueEntity::of)
                 .toList();
     }
 }

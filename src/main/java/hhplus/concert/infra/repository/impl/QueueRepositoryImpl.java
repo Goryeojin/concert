@@ -5,7 +5,7 @@ import hhplus.concert.domain.repository.QueueRepository;
 import hhplus.concert.infra.entity.QueueEntity;
 import hhplus.concert.infra.repository.jpa.QueueJpaRepository;
 import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +32,7 @@ public class QueueRepositoryImpl implements QueueRepository {
     public Queue findQueue(String token) {
         return queueJpaRepository.findByToken(token)
                 .map(QueueEntity::of)
-                .orElseThrow(() -> new CoreException(ErrorCode.TOKEN_NOT_FOUND));
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "토큰값: " + token));
     }
 
     @Override

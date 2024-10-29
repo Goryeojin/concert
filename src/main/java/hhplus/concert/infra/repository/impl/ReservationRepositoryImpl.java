@@ -5,7 +5,7 @@ import hhplus.concert.domain.repository.ReservationRepository;
 import hhplus.concert.infra.entity.ReservationEntity;
 import hhplus.concert.infra.repository.jpa.ReservationJpaRepository;
 import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -28,7 +28,7 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     public Reservation findById(Long reservationId) {
         return reservationJpaRepository.findByReservationId(reservationId)
                 .map(ReservationEntity::of)
-                .orElseThrow(() -> new CoreException(ErrorCode.RESERVATION_NOT_FOUND));
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "예약 ID: " + reservationId));
     }
 
     @Override

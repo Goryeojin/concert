@@ -1,7 +1,7 @@
 package hhplus.concert.domain.model;
 
 import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public record Point(
 
     public Point usePoint(int useAmount) {
         if (this.amount < useAmount) {
-            throw new CoreException(ErrorCode.PAYMENT_FAILED_AMOUNT);
+            throw new CoreException(ErrorType.PAYMENT_FAILED_AMOUNT, "잔액: " + amount + ", 결제 금액: " + useAmount);
         }
         return Point.builder()
                 .id(id)

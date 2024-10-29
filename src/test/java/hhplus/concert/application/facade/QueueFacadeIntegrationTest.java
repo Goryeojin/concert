@@ -2,8 +2,8 @@ package hhplus.concert.application.facade;
 
 import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.repository.QueueRepository;
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +82,7 @@ public class QueueFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> queueFacade.getStatus(token.token(), userId))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED);
+                .hasMessageContaining(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test

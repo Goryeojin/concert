@@ -7,8 +7,8 @@ import hhplus.concert.domain.model.Reservation;
 import hhplus.concert.domain.model.Seat;
 import hhplus.concert.domain.repository.ConcertRepository;
 import hhplus.concert.domain.repository.ReservationRepository;
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.ReservationStatus;
 import hhplus.concert.support.type.SeatStatus;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ class ReservationFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> reservationFacade.reservation(command))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BEFORE_RESERVATION_AT);
+                .hasMessageContaining(ErrorType.BEFORE_RESERVATION_AT.getMessage());
 
     }
     
@@ -66,7 +66,7 @@ class ReservationFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> reservationFacade.reservation(command))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.AFTER_DEADLINE);
+                .hasMessageContaining(ErrorType.AFTER_DEADLINE.getMessage());
     }
     
     @Test
@@ -80,7 +80,7 @@ class ReservationFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> reservationFacade.reservation(command))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SEAT_UNAVAILABLE);
+                .hasMessageContaining(ErrorType.SEAT_UNAVAILABLE.getMessage());
     }
     
     @Test

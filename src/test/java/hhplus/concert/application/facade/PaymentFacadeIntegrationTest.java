@@ -6,8 +6,8 @@ import hhplus.concert.domain.repository.ReservationRepository;
 import hhplus.concert.domain.service.ConcertService;
 import hhplus.concert.domain.service.PointService;
 import hhplus.concert.domain.service.QueueService;
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.ReservationStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -87,7 +86,7 @@ class PaymentFacadeIntegrationTest {
         // 잔액을 충전하지 않을 경우 잔액은 0이기 때문에 결제에 실패한다.
         assertThatThrownBy(() -> paymentFacade.payment(token, reservation.id(), USER_ID))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PAYMENT_FAILED_AMOUNT);
+                .hasMessageContaining(ErrorType.PAYMENT_FAILED_AMOUNT.getMessage());
     }
 
     @Test
@@ -95,7 +94,7 @@ class PaymentFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, reservation.id(), 2L)) // 예약자 ID: 1L, 결제자 ID: 2L
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PAYMENT_DIFFERENT_USER);
+                .hasMessageContaining(ErrorType.PAYMENT_DIFFERENT_USER.getMessage());
     }
 
     @Test
@@ -107,7 +106,7 @@ class PaymentFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, timeHasPassedReservation.id(), USER_ID))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PAYMENT_TIMEOUT);
+                .hasMessageContaining(ErrorType.PAYMENT_TIMEOUT.getMessage());
     }
 
     @Test
@@ -119,7 +118,7 @@ class PaymentFacadeIntegrationTest {
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, alreadyReserved.id(), USER_ID))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ALREADY_PAID);
+                .hasMessageContaining(ErrorType.ALREADY_PAID.getMessage());
     }
 
     @Test

@@ -37,6 +37,9 @@ public class SeatEntity {
     @Column(nullable = false)
     private int seatPrice;
 
+    @Version
+    private Long version;
+
     public Seat of() {
         return Seat.builder()
                 .id(this.id)
@@ -45,6 +48,7 @@ public class SeatEntity {
                 .status(this.status)
                 .reservationAt(this.reservationAt)
                 .seatPrice(this.seatPrice)
+                .version(this.version)
                 .build();
     }
 
@@ -56,6 +60,7 @@ public class SeatEntity {
                 .status(seat.status())
                 .reservationAt(seat.reservationAt())
                 .seatPrice(seat.seatPrice())
+                .version(seat.version())
                 .build();
     }
 }

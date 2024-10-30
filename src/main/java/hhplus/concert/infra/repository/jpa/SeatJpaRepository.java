@@ -21,7 +21,8 @@ public interface SeatJpaRepository extends JpaRepository<SeatEntity, Long> {
                                @Param("scheduleId") Long scheduleId,
                                @Param("seatStatus") SeatStatus seatStatus);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
+//    @Lock(LockModeType.OPTIMISTIC)
     @Query("select s from seat s where s.id = ?1")
     Optional<SeatEntity> findBySeatId(Long seatId);
 }

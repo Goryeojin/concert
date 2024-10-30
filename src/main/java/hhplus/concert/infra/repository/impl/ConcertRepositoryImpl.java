@@ -75,4 +75,11 @@ public class ConcertRepositoryImpl implements ConcertRepository {
                 .map(SeatEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "검색한 좌석 ID: " + seatId));
     }
+
+    @Override
+    public Seat findById(Long seatId) {
+        return seatJpaRepository.findById(seatId)
+                .map(SeatEntity::of)
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "검색한 좌석 ID: " + seatId));
+    }
 }

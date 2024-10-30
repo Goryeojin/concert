@@ -7,16 +7,19 @@ import hhplus.concert.domain.model.Reservation;
 import hhplus.concert.domain.model.Seat;
 import hhplus.concert.domain.repository.ConcertRepository;
 import hhplus.concert.domain.repository.ReservationRepository;
-import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.code.ErrorType;
+import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.type.ReservationStatus;
 import hhplus.concert.support.type.SeatStatus;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -29,6 +32,9 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFOR
 @SpringBootTest
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class ReservationFacadeIntegrationTest {
+
+    Logger logger = LoggerFactory.getLogger(ReservationFacadeIntegrationTest.class);
+
     @Autowired
     private ReservationFacade reservationFacade;
 
@@ -99,11 +105,10 @@ class ReservationFacadeIntegrationTest {
     }
 
     @Test
-    @Transactional
-    void 다수의_사용자가_1개의_좌석을_동시에_예약하면_한_명만_성공한다() throws InterruptedException {
+    void 낙관적락_다수의_사용자가_1개의_좌석을_동시에_예약하면_한_명만_성공한다() throws InterruptedException {
         // when
-        final int threadCount = 5;
-        final ExecutorService executorService = Executors.newFixedThreadPool(100);
+        final int threadCount = 100;
+        final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
         for (long l = 1; l <= threadCount; l++) {
@@ -120,7 +125,7 @@ class ReservationFacadeIntegrationTest {
                     // 좌석 예약 호출
                     reservationFacade.reservation(command);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    logger.error(e.getMessage(), e);
                 } finally {
                     countDownLatch.countDown();
                 }

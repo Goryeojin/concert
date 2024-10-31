@@ -76,3 +76,5 @@
 - 스프링 스케쥴러
 - 글로벌 에러 핸들링
 - Filter / Interceptor
+
+## [콘서트 예약 시스템에서 동시성 제어 기법 활용하기](docs/06_Concurrency_Analysis_Report.md)

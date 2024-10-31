@@ -1,6 +1,9 @@
 package hhplus.concert.application.facade;
 
-import hhplus.concert.domain.model.*;
+import hhplus.concert.domain.model.Payment;
+import hhplus.concert.domain.model.Point;
+import hhplus.concert.domain.model.Queue;
+import hhplus.concert.domain.model.Reservation;
 import hhplus.concert.domain.repository.PaymentRepository;
 import hhplus.concert.domain.repository.ReservationRepository;
 import hhplus.concert.domain.service.ConcertService;
@@ -15,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -25,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-//@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class PaymentFacadeIntegrationTest {
 
     Logger logger = LoggerFactory.getLogger(PaymentFacadeIntegrationTest.class);
@@ -65,7 +69,6 @@ class PaymentFacadeIntegrationTest {
                 .userId(USER_ID)
                 .status(ReservationStatus.PAYMENT_WAITING)
                 .reservationAt(LocalDateTime.now())
-                .version(0L)
                 .build();
         reservationRepository.save(reservation); // 테스트에서 사용할 예약을 저장한다.
     }
@@ -85,12 +88,11 @@ class PaymentFacadeIntegrationTest {
         assertThat(payment.userId()).isEqualTo(USER_ID);
         assertThat(payment.reservationId()).isEqualTo(reservation.id());
 
-        Reservation updatedReservation = reservationRepository.findById(reservation.id());
-        assertThat(updatedReservation.status()).isEqualTo(ReservationStatus.COMPLETED); // 예약이 완료 상태로 변경되었는지 검증
-
         Point userPoint = pointService.getPoint(USER_ID);
-        Seat reservedSeat = concertService.getSeat(updatedReservation.seatId());
+        Reservation updatedReservation = reservationRepository.findById(reservation.id());
+
         assertThat(userPoint.amount()).isEqualTo(0); // 잔액 차감 확인
+        assertThat(updatedReservation.status()).isEqualTo(ReservationStatus.COMPLETED); // 예약이 완료 상태로 변경되었는지 검증
     }
 
     @Test
@@ -147,7 +149,7 @@ class PaymentFacadeIntegrationTest {
     }
 
     @Test
-    void 사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
+    void 비관적락_사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
         // given
         pointService.chargePoint(USER_ID, 100_000L);
 
@@ -155,7 +157,7 @@ class PaymentFacadeIntegrationTest {
         AtomicInteger successCnt = new AtomicInteger(0);
         AtomicInteger failCnt = new AtomicInteger(0);
 
-        final int threadCount = 5;
+        final int threadCount = 100;
         final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
         for(int i = 0; i < threadCount; i++) {
@@ -180,10 +182,13 @@ class PaymentFacadeIntegrationTest {
         assertThat(successCnt.intValue()).isOne();
         // 실패한 횟수가 threadCount 에서 성공한 횟수를 뺀 값과 같은지 검증한다.
         assertThat(failCnt.intValue()).isEqualTo(threadCount - successCnt.intValue());
+        // 결제 후 잔액이 충전금액 - 사용금액 인지 검증한다.
+        Point point = pointService.getPoint(USER_ID);
+        assertThat(point.amount()).isEqualTo(100_000L - 10_000L);
     }
 
     @Test
-    void 낙관적락_사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
+    void 분산락_사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
         // given
         pointService.chargePoint(USER_ID, 100_000L);
 
@@ -197,7 +202,7 @@ class PaymentFacadeIntegrationTest {
         for(int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 try {
-                    paymentFacade.payment(token, reservation.id(), USER_ID);
+                    paymentFacade.payment("PAYMENT:" + reservation.id(), token, reservation.id(), USER_ID);
                     successCnt.incrementAndGet();
                 } catch(Exception e) {
                     logger.warn(e.getMessage());

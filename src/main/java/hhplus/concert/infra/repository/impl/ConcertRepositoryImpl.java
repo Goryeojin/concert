@@ -15,6 +15,7 @@ import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.SeatStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -70,6 +71,7 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     }
 
     @Override
+    @Transactional
     public Seat findSeat(Long seatId) {
         return seatJpaRepository.findBySeatId(seatId)
                 .map(SeatEntity::of)

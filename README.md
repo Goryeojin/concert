@@ -2,15 +2,12 @@
 # 콘서트 예약 서비스
 
 ## Docs
-### [1. 마일스톤](https://github.com/Goryeojin/hhplus-concert/blob/step5/docs/01_Milstone.md)
+### [1. 마일스톤](docs/01_Milstone.md)
 ### [2. 이벤트 시퀀스 다이어그램](https://github.com/Goryeojin/hhplus-concert/blob/step5/docs/02_Sequence.md)
 
-### [3. ERD](https://github.com/Goryeojin/hhplus-concert/blob/step6/docs/03_ERD.md)
-### [4. API 명세 문서](https://github.com/Goryeojin/hhplus-concert/blob/step6/docs/04_API_specification.md)
-### [5. Swagger UI](https://github.com/Goryeojin/hhplus-concert/blob/step6/docs/05_Swagger_UI.md)
-
-## Mock API
-### [1. Mock API Controller](https://github.com/Goryeojin/hhplus-concert/blob/step6/src/main/java/hhplus/concert/interfaces/controller/MockApiController.java)
+### [3. ERD](docs/03_ERD.md)
+### [4. API 명세 문서](docs/04_API_specification.md)
+### [5. Swagger UI](docs/05_Swagger_UI.md)
 
 ## 패키지 구조
 <img width="212" alt="image" src="https://github.com/user-attachments/assets/5096b9c7-477d-4969-872e-e5de2564050d">

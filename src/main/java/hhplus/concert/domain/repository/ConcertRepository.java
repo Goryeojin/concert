@@ -21,4 +21,6 @@ public interface ConcertRepository {
     void saveSeat(Seat seat);
 
     Seat findSeat(Long seatId);
+
+    Seat findById(Long seatId);
 }

@@ -3,9 +3,9 @@ package hhplus.concert.application.facade;
 import hhplus.concert.domain.model.Point;
 import hhplus.concert.domain.service.PointService;
 import hhplus.concert.domain.service.UserService;
+import hhplus.concert.support.aop.DistributedLock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -19,9 +19,14 @@ public class PointFacade {
         return pointService.getPoint(userId);
     }
 
-    @Transactional
     public Point chargePoint(Long userId, Long amount) {
         userService.existsUser(userId);
         return pointService.chargePoint(userId, amount);
+    }
+
+    @DistributedLock(key = "#lockName")
+    public Point chargePoint(String lockName, Long userId, Long amount) {
+        userService.existsUser(userId);
+        return pointService.chargePointWithoutLock(userId, amount);
     }
 }

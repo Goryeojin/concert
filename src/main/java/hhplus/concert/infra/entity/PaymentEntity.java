@@ -33,7 +33,6 @@ public class PaymentEntity {
 
     private LocalDateTime paymentAt;
 
-
     public static PaymentEntity from(Payment payment) {
         return PaymentEntity.builder()
                 .id(payment.id())

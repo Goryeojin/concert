@@ -7,6 +7,7 @@ import hhplus.concert.domain.repository.ConcertRepository;
 import hhplus.concert.support.type.SeatStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class ConcertService {
         seat.checkStatus();
     }
 
+    @Transactional
     public Seat getSeat(Long seatId) {
         return concertRepository.findSeat(seatId);
     }
@@ -54,5 +56,9 @@ public class ConcertService {
     public void assignmentSeat(Seat seat) {
         Seat assignment = seat.assign();
         concertRepository.saveSeat(assignment);
+    }
+
+    public Seat getSeatWithoutLock(Long seatId) {
+        return concertRepository.findById(seatId);
     }
 }

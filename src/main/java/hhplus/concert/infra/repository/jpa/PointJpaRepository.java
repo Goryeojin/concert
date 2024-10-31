@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface PointJpaRepository extends JpaRepository<PointEntity, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     Optional<PointEntity> findByUserId(Long userId);
 }

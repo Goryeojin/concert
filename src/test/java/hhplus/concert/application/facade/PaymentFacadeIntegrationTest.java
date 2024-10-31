@@ -6,11 +6,13 @@ import hhplus.concert.domain.repository.ReservationRepository;
 import hhplus.concert.domain.service.ConcertService;
 import hhplus.concert.domain.service.PointService;
 import hhplus.concert.domain.service.QueueService;
-import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.code.ErrorType;
+import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.type.ReservationStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 //@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class PaymentFacadeIntegrationTest {
+
+    Logger logger = LoggerFactory.getLogger(PaymentFacadeIntegrationTest.class);
 
     @Autowired
     private PaymentFacade paymentFacade;
@@ -53,7 +57,16 @@ class PaymentFacadeIntegrationTest {
         Queue queue = queueService.createToken(USER_ID);
         token = queue.token(); // 토큰 검증 통과를 위한 토큰 생성
 
-        reservation = new Reservation(1L, 1L, 1L, 1L, USER_ID, ReservationStatus.PAYMENT_WAITING, LocalDateTime.now());
+        reservation = Reservation.builder()
+                .id(1L)
+                .concertId(1L)
+                .scheduleId(1L)
+                .seatId(1L)
+                .userId(USER_ID)
+                .status(ReservationStatus.PAYMENT_WAITING)
+                .reservationAt(LocalDateTime.now())
+                .version(0L)
+                .build();
         reservationRepository.save(reservation); // 테스트에서 사용할 예약을 저장한다.
     }
 
@@ -99,9 +112,15 @@ class PaymentFacadeIntegrationTest {
 
     @Test
     void 예약한지_5분이_지났을_경우_PAYMENT_TIMEOUT_에러를_반환한다() {
-        Reservation timeHasPassedReservation =
-                new Reservation(2L, 1L, 1L, 1L, USER_ID,
-                        ReservationStatus.PAYMENT_WAITING, LocalDateTime.now().minusMinutes(6)); // 5분 전 예약건으로 생성
+        Reservation timeHasPassedReservation = Reservation.builder()
+                .id(2L)
+                .concertId(1L)
+                .scheduleId(1L)
+                .seatId(1L)
+                .userId(USER_ID)
+                .status(ReservationStatus.PAYMENT_WAITING)
+                .reservationAt(LocalDateTime.now().minusMinutes(6)) // 5분 전 예약건으로 생성
+                .build();
         reservationRepository.save(timeHasPassedReservation);
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, timeHasPassedReservation.id(), USER_ID))
@@ -111,9 +130,15 @@ class PaymentFacadeIntegrationTest {
 
     @Test
     void 이미_결제된_예약건이라면_ALREADY_PAID_에러를_반환한다() {
-        Reservation alreadyReserved =
-                new Reservation(2L, 1L, 1L, 1L, USER_ID,
-                        ReservationStatus.COMPLETED, LocalDateTime.now().minusMinutes(6));
+        Reservation alreadyReserved = Reservation.builder()
+                .id(2L)
+                .concertId(1L)
+                .scheduleId(1L)
+                .seatId(1L)
+                .userId(USER_ID)
+                .status(ReservationStatus.COMPLETED)
+                .reservationAt(LocalDateTime.now().minusMinutes(6))
+                .build();
         reservationRepository.save(alreadyReserved);
         // when & then
         assertThatThrownBy(() -> paymentFacade.payment(token, alreadyReserved.id(), USER_ID))
@@ -139,6 +164,7 @@ class PaymentFacadeIntegrationTest {
                     paymentFacade.payment(token, reservation.id(), USER_ID);
                     successCnt.incrementAndGet();
                 } catch(Exception e) {
+                    logger.warn(e.getMessage());
                     failCnt.incrementAndGet();
                 }
                 finally {
@@ -154,5 +180,44 @@ class PaymentFacadeIntegrationTest {
         assertThat(successCnt.intValue()).isOne();
         // 실패한 횟수가 threadCount 에서 성공한 횟수를 뺀 값과 같은지 검증한다.
         assertThat(failCnt.intValue()).isEqualTo(threadCount - successCnt.intValue());
+    }
+
+    @Test
+    void 낙관적락_사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
+        // given
+        pointService.chargePoint(USER_ID, 100_000L);
+
+        // when
+        AtomicInteger successCnt = new AtomicInteger(0);
+        AtomicInteger failCnt = new AtomicInteger(0);
+
+        final int threadCount = 100;
+        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+        for(int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                try {
+                    paymentFacade.payment(token, reservation.id(), USER_ID);
+                    successCnt.incrementAndGet();
+                } catch(Exception e) {
+                    logger.warn(e.getMessage());
+                    failCnt.incrementAndGet();
+                }
+                finally {
+                    countDownLatch.countDown();
+                }
+            }).start();
+        }
+        countDownLatch.await();
+
+        Thread.sleep(1000);
+
+        // 결제 요청이 한 번만 수행됐는지 검증한다.
+        assertThat(successCnt.intValue()).isOne();
+        // 실패한 횟수가 threadCount 에서 성공한 횟수를 뺀 값과 같은지 검증한다.
+        assertThat(failCnt.intValue()).isEqualTo(threadCount - successCnt.intValue());
+        // 결제 후 잔액이 충전금액 - 사용금액 인지 검증한다.
+        Point point = pointService.getPoint(USER_ID);
+        assertThat(point.amount()).isEqualTo(100_000L - 10_000L);
     }
 }

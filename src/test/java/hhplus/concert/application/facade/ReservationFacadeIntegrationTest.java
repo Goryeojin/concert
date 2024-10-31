@@ -125,7 +125,7 @@ class ReservationFacadeIntegrationTest {
                     // 좌석 예약 호출
                     reservationFacade.reservation(command);
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    logger.warn(e.getMessage(), e);
                 } finally {
                     countDownLatch.countDown();
                 }

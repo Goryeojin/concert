@@ -31,6 +31,7 @@ public record Seat(
                 .status(SeatStatus.UNAVAILABLE)
                 .reservationAt(LocalDateTime.now())
                 .seatPrice(this.seatPrice)
+                .version(this.version)
                 .build();
     }
 

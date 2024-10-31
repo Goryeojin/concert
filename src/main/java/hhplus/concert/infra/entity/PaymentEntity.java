@@ -37,7 +37,7 @@ public class PaymentEntity {
     public static PaymentEntity from(Payment payment) {
         return PaymentEntity.builder()
                 .id(payment.id())
-                .reservation(ReservationEntity.builder().id(payment.reservationId()).build())
+                .reservation(ReservationEntity.builder().id(payment.reservationId()).version(0L).build())
                 .user(UserEntity.builder().id(payment.userId()).build())
                 .amount(payment.amount())
                 .paymentAt(payment.paymentAt())

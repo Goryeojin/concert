@@ -11,7 +11,8 @@ public record Point(
         Long id,
         Long userId,
         Long amount,
-        LocalDateTime lastUpdatedAt
+        LocalDateTime lastUpdatedAt,
+        Long version
 ) {
     public Point charge(Long amount) {
         return Point.builder()
@@ -19,6 +20,7 @@ public record Point(
                 .userId(this.userId)
                 .amount(this.amount + amount)
                 .lastUpdatedAt(LocalDateTime.now())
+                .version(0L)
                 .build();
     }
 
@@ -31,6 +33,7 @@ public record Point(
                 .userId(userId)
                 .amount(amount - useAmount)
                 .lastUpdatedAt(LocalDateTime.now())
+                .version(version)
                 .build();
     }
 }

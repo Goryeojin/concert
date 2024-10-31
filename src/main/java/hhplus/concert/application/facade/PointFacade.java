@@ -19,7 +19,6 @@ public class PointFacade {
         return pointService.getPoint(userId);
     }
 
-    @Transactional
     public Point chargePoint(Long userId, Long amount) {
         userService.existsUser(userId);
         return pointService.chargePoint(userId, amount);

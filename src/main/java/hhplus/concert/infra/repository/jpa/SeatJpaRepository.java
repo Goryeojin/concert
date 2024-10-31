@@ -22,7 +22,7 @@ public interface SeatJpaRepository extends JpaRepository<SeatEntity, Long> {
                                @Param("seatStatus") SeatStatus seatStatus);
 
 //    @Lock(LockModeType.PESSIMISTIC_WRITE)
-//    @Lock(LockModeType.OPTIMISTIC)
+    @Lock(LockModeType.OPTIMISTIC)
     @Query("select s from seat s where s.id = ?1")
     Optional<SeatEntity> findBySeatId(Long seatId);
 }

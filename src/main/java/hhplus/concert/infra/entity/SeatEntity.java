@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -38,6 +39,7 @@ public class SeatEntity {
     private int seatPrice;
 
     @Version
+    @ColumnDefault("0")
     private Long version;
 
     public Seat of() {

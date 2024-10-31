@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface ReservationJpaRepository extends JpaRepository<ReservationEntity, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     @Query("select r from reservation r where r.id = ?1")
     Optional<ReservationEntity> findByReservationId(Long reservationId);
     List<ReservationEntity> findByStatusAndReservationAtBefore(ReservationStatus reservationStatus, LocalDateTime localDateTime);

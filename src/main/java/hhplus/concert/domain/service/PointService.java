@@ -12,6 +12,7 @@ public class PointService {
 
     private final PointRepository pointRepository;
 
+    @Transactional
     public Point getPoint(Long userId) {
         return pointRepository.findPoint(userId);
     }

@@ -23,7 +23,7 @@ public class ReservationController {
             @RequestHeader("Token") String token,
             @Valid @RequestBody ReservationDto.ReservationRequest request
     ) {
-        ReservationResult reservation = reservationFacade.reservation(request.toCommand(token));
+        ReservationResult reservation = reservationFacade.reservation("RESERVATION:" + request.seatId(), request.toCommand(token));
         return ok(ReservationDto.ReservationResponse.of(reservation));
     }
 }

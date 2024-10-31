@@ -14,8 +14,7 @@ public record Seat(
     int seatNo,
     SeatStatus status,
     LocalDateTime reservationAt,
-    int seatPrice,
-    Long version
+    int seatPrice
 ) {
     public void checkStatus() {
         if (status.equals(SeatStatus.UNAVAILABLE)) {
@@ -31,7 +30,6 @@ public record Seat(
                 .status(SeatStatus.UNAVAILABLE)
                 .reservationAt(LocalDateTime.now())
                 .seatPrice(this.seatPrice)
-                .version(this.version)
                 .build();
     }
 

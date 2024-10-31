@@ -44,20 +44,15 @@ public class ReservationEntity {
 
     private LocalDateTime reservationAt;
 
-    @Version
-    @ColumnDefault("0")
-    private Long version;
-
     public static ReservationEntity from(Reservation reservation) {
         return ReservationEntity.builder()
                 .id(reservation.id())
                 .concert(ConcertEntity.builder().id(reservation.concertId()).build())
                 .schedule(ConcertScheduleEntity.builder().id(reservation.scheduleId()).build())
-                .seat(SeatEntity.builder().id(reservation.seatId()).version(0L).build())
+                .seat(SeatEntity.builder().id(reservation.seatId()).build())
                 .user(UserEntity.builder().id(reservation.userId()).build())
                 .status(reservation.status())
                 .reservationAt(reservation.reservationAt())
-                .version(reservation.version())
                 .build();
     }
 
@@ -70,7 +65,6 @@ public class ReservationEntity {
                 .userId(user.getId())
                 .status(status)
                 .reservationAt(reservationAt)
-                .version(version)
                 .build();
     }
 }

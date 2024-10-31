@@ -16,8 +16,7 @@ public record Reservation(
         Long seatId,
         Long userId,
         ReservationStatus status,
-        LocalDateTime reservationAt,
-        Long version
+        LocalDateTime reservationAt
 ) {
     public static Reservation create(ConcertSchedule schedule, Long seatId, Long userId) {
         return Reservation.builder()
@@ -54,7 +53,6 @@ public record Reservation(
                 .userId(userId)
                 .status(status)
                 .reservationAt(this.reservationAt)
-                .version(version)
                 .build();
     }
 }

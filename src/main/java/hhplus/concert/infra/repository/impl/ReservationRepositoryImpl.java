@@ -32,6 +32,13 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     }
 
     @Override
+    public Reservation findByIdWithoutLock(Long reservationId) {
+        return reservationJpaRepository.findByReservationIdWithoutLock(reservationId)
+                .map(ReservationEntity::of)
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "예약 ID: " + reservationId));
+    }
+
+    @Override
     public List<Reservation> findByConcertIdAndScheduleIdAndSeatId(Long concertId, Long scheduleId, Long seatId) {
         return reservationJpaRepository.findByConcertIdAndScheduleIdAndSeatId(concertId, scheduleId, seatId).stream()
                 .map(ReservationEntity::of)

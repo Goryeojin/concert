@@ -4,6 +4,8 @@ import hhplus.concert.domain.model.Point;
 import hhplus.concert.domain.service.PointService;
 import hhplus.concert.infra.repository.jpa.PointJpaRepository;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -18,6 +20,8 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFOR
 @SpringBootTest
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class PointFacadeIntegrationTest {
+
+    Logger logger = LoggerFactory.getLogger(PointFacadeIntegrationTest.class);
 
     @Autowired
     private PointFacade pointFacade;
@@ -58,9 +62,9 @@ class PointFacadeIntegrationTest {
         assertThat(fetchedPoint.userId()).isEqualTo(USER_ID);
     }
 
-    @Test
+//    @Test
     @Transactional
-    void 사용자가_동시에_여러_번_충전을_요청하면_모두_성공한다() throws InterruptedException {
+    void 낙관적락_사용자가_동시에_여러_번_충전을_요청하면_모두_성공한다() throws InterruptedException {
         // given
         long chargeAmount = 100L;
 
@@ -77,6 +81,46 @@ class PointFacadeIntegrationTest {
                     pointFacade.chargePoint(USER_ID, chargeAmount);
                     successCnt.incrementAndGet();
                 } catch(Exception e) {
+                    logger.warn(e.getMessage());
+                    failCnt.incrementAndGet();
+                }
+                finally {
+                    countDownLatch.countDown();
+                }
+            }).start();
+        }
+        countDownLatch.await();
+
+        Thread.sleep(1000);
+
+        Point point = pointFacade.getPoint(USER_ID);
+
+        // 충전 성공 횟수가 한 번인지 검증한다.
+        assertThat(successCnt.intValue()).isOne();
+        // 충전된 금액의 정합성이 보장되는지 검증한다.
+        assertThat(chargeAmount * successCnt.intValue()).isEqualTo(point.amount());
+    }
+
+    @Test
+    @Transactional
+    void 비관적락_사용자가_동시에_여러_번_충전을_요청하면_모두_성공한다() throws InterruptedException {
+        // given
+        long chargeAmount = 100L;
+
+        // when
+        AtomicInteger successCnt = new AtomicInteger(0);
+        AtomicInteger failCnt = new AtomicInteger(0);
+
+        final int threadCount = 100;
+        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+        for(int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                try {
+                    pointFacade.chargePoint(USER_ID, chargeAmount);
+                    successCnt.incrementAndGet();
+                } catch(Exception e) {
+                    logger.warn(e.getMessage());
                     failCnt.incrementAndGet();
                 }
                 finally {
@@ -92,8 +136,46 @@ class PointFacadeIntegrationTest {
 
         // 충전 요청 성공 횟수가 스레드 갯수와 같은지 검증한다.
         assertThat(threadCount).isEqualTo(successCnt.intValue());
-
         // 충전된 금액의 정합성이 보장되는지 검증한다.
-        assertThat(chargeAmount * threadCount).isEqualTo(point.amount());
+        assertThat(chargeAmount * successCnt.intValue()).isEqualTo(point.amount());
+    }
+
+    @Test
+    @Transactional
+    void 분산락_사용자가_동시에_여러_번_충전을_요청하면_모두_성공한다() throws InterruptedException {
+        // given
+        long chargeAmount = 100L;
+
+        // when
+        AtomicInteger successCnt = new AtomicInteger(0);
+        AtomicInteger failCnt = new AtomicInteger(0);
+
+        final int threadCount = 100;
+        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+        for(int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                try {
+                    pointFacade.chargePoint("POINT:" + USER_ID, USER_ID, chargeAmount);
+                    successCnt.incrementAndGet();
+                } catch(Exception e) {
+                    logger.warn(e.getMessage());
+                    failCnt.incrementAndGet();
+                }
+                finally {
+                    countDownLatch.countDown();
+                }
+            }).start();
+        }
+        countDownLatch.await();
+
+        Thread.sleep(1000);
+
+        Point point = pointFacade.getPoint(USER_ID);
+
+        // 충전 요청 성공 횟수가 스레드 갯수와 같은지 검증한다.
+        assertThat(threadCount).isEqualTo(successCnt.intValue());
+        // 충전된 금액의 정합성이 보장되는지 검증한다.
+        assertThat(chargeAmount * successCnt.intValue()).isEqualTo(point.amount());
     }
 }

@@ -11,6 +11,8 @@ public interface ReservationRepository {
 
     Reservation findById(Long reservationId);
 
+    Reservation findByIdWithoutLock(Long reservationId);
+
     List<Reservation> findByConcertIdAndScheduleIdAndSeatId(Long concertId, Long scheduleId, Long seatId);
 
     List<Reservation> findExpiredReservation(ReservationStatus reservationStatus, LocalDateTime localDateTime);

@@ -1,7 +1,7 @@
 package hhplus.concert.domain.model;
 
 import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import lombok.Builder;
 
@@ -53,7 +53,7 @@ public record Queue (
 
     public boolean checkStatus() {
         if (status.equals(QueueStatus.EXPIRED)) {
-            throw new CoreException(ErrorCode.UNAUTHORIZED);
+            throw new CoreException(ErrorType.TOKEN_INVALID, "토큰 상태: " + status);
         }
         return status.equals(QueueStatus.ACTIVE);
     }
@@ -61,7 +61,7 @@ public record Queue (
     public void validateToken() {
         // 토큰이 대기 상태이거나 만료되었을 경우
         if (expiredAt == null || expiredAt.isBefore(LocalDateTime.now())) {
-            throw new CoreException(ErrorCode.UNAUTHORIZED);
+            throw new CoreException(ErrorType.TOKEN_INVALID, "토큰 상태: " + status);
         }
     }
 

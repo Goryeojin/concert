@@ -1,7 +1,7 @@
 package hhplus.concert.domain.model;
 
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.ReservationStatus;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +45,7 @@ class ReservationTest {
         // when & then
         assertThatThrownBy(() -> reservation.checkValidation(1L))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorCode.ALREADY_PAID.getMessage());
+                .hasMessage(ErrorType.ALREADY_PAID.getMessage());
     }
 
     @Test
@@ -64,7 +64,7 @@ class ReservationTest {
         // when & then
         assertThatThrownBy(() -> reservation.checkValidation(1L))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorCode.PAYMENT_TIMEOUT.getMessage());
+                .hasMessage(ErrorType.PAYMENT_TIMEOUT.getMessage());
     }
 
     @Test
@@ -83,7 +83,7 @@ class ReservationTest {
         // when & then
         assertThatThrownBy(() -> reservation.checkValidation(2L))  // 다른 유저 ID
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorCode.PAYMENT_DIFFERENT_USER.getMessage());
+                .hasMessage(ErrorType.PAYMENT_DIFFERENT_USER.getMessage());
     }
 
     @Test

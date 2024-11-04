@@ -4,8 +4,8 @@ import hhplus.concert.domain.model.Concert;
 import hhplus.concert.domain.model.ConcertSchedule;
 import hhplus.concert.domain.model.Seat;
 import hhplus.concert.domain.repository.ConcertRepository;
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.ConcertStatus;
 import hhplus.concert.support.type.SeatStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,7 +115,7 @@ class ConcertServiceTest {
         // when & then
         assertThatThrownBy(() -> concertService.isAvailableReservation(schedule, unavailableSeat))
                 .isInstanceOf(CoreException.class)
-                .hasMessageContaining(ErrorCode.SEAT_UNAVAILABLE.getMessage());
+                .hasMessageContaining(ErrorType.SEAT_UNAVAILABLE.getMessage());
     }
 
     @Test
@@ -127,6 +127,6 @@ class ConcertServiceTest {
         // when & then
         assertThatThrownBy(() -> concertService.isAvailableReservation(schedule, seat))
                 .isInstanceOf(CoreException.class)
-                .hasMessageContaining(ErrorCode.AFTER_DEADLINE.getMessage());
+                .hasMessageContaining(ErrorType.AFTER_DEADLINE.getMessage());
     }
 }

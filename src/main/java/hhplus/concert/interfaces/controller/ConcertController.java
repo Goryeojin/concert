@@ -4,16 +4,20 @@ import hhplus.concert.application.dto.SeatsResult;
 import hhplus.concert.application.facade.ConcertFacade;
 import hhplus.concert.domain.model.Concert;
 import hhplus.concert.domain.model.ConcertSchedule;
-import hhplus.concert.interfaces.dto.*;
+import hhplus.concert.interfaces.dto.GetConcertDto;
+import hhplus.concert.interfaces.dto.GetScheduleDto;
+import hhplus.concert.interfaces.dto.GetSeatDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/*
-@RequestHeader("Token") String token
- */
+import static org.springframework.http.ResponseEntity.ok;
+
 @RestController
 @RequestMapping("/api/v1/concerts")
 @RequiredArgsConstructor
@@ -21,38 +25,29 @@ public class ConcertController {
 
     private final ConcertFacade concertFacade;
 
-    /**
-     * 콘서트 목록을 조회한다.
-     */
+    // 콘서트 목록 조회
     @GetMapping
     public ResponseEntity<GetConcertDto.ConcertResponse> getConcerts() {
         List<Concert> concerts = concertFacade.getConcerts();
-        return ResponseEntity.ok()
-                .body(GetConcertDto.ConcertResponse.of(concerts));
+        return ok(GetConcertDto.ConcertResponse.of(concerts));
     }
 
-    /**
-     * 특정 콘서트의 예약 가능한 일정을 조회한다.
-     */
+    // 예약 가능한 일정 조회
     @GetMapping("/{concertId}/schedules")
     public ResponseEntity<GetScheduleDto.ScheduleResponse> getConcertSchedules(
             @PathVariable Long concertId
     ) {
         List<ConcertSchedule> schedules = concertFacade.getConcertSchedules(concertId);
-        return ResponseEntity.ok()
-                .body(GetScheduleDto.ScheduleResponse.of(concertId, schedules));
+        return ok(GetScheduleDto.ScheduleResponse.of(concertId, schedules));
     }
 
-    /**
-     * 특정 콘서트 일정의 예약 가능한 좌석을 조회한다.
-     */
+    // 예약 가능한 좌석 조회
     @GetMapping("/{concertId}/schedules/{scheduleId}/seats")
     public ResponseEntity<GetSeatDto.SeatResponse> getSeats(
             @PathVariable Long concertId,
             @PathVariable Long scheduleId
     ) {
         SeatsResult seats = concertFacade.getSeats(concertId, scheduleId);
-        return ResponseEntity.ok()
-                .body(GetSeatDto.SeatResponse.of(seats));
+        return ok(GetSeatDto.SeatResponse.of(seats));
     }
 }

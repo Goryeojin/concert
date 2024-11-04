@@ -1,7 +1,7 @@
 package hhplus.concert.domain.model;
 
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import org.junit.jupiter.api.Test;
 
@@ -73,7 +73,7 @@ class QueueTest {
         // when & then
         assertThatThrownBy(token::checkStatus)
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorCode.UNAUTHORIZED.getMessage());
+                .hasMessage(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test
@@ -100,7 +100,7 @@ class QueueTest {
         // when & then
         assertThatThrownBy(expiredToken::validateToken)
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorCode.UNAUTHORIZED.getMessage());
+                .hasMessage(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test
@@ -113,7 +113,7 @@ class QueueTest {
         // when & then
         assertThatThrownBy(expiredToken::validateToken)
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorCode.UNAUTHORIZED.getMessage());
+                .hasMessage(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test

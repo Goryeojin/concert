@@ -10,11 +10,12 @@ import hhplus.concert.infra.entity.SeatEntity;
 import hhplus.concert.infra.repository.jpa.ConcertJpaRepository;
 import hhplus.concert.infra.repository.jpa.ConcertScheduleJpaRepository;
 import hhplus.concert.infra.repository.jpa.SeatJpaRepository;
-import hhplus.concert.support.code.ErrorCode;
 import hhplus.concert.support.exception.CoreException;
+import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.SeatStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,7 +48,7 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     public Concert findConcert(Long concertId) {
         return concertJpaRepository.findById(concertId)
                 .map(ConcertEntity::of)
-                .orElseThrow(() -> new CoreException(ErrorCode.CONCERT_NOT_FOUND));
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "검색한 콘서트 ID: " + concertId));
     }
 
     @Override
@@ -61,7 +62,7 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     public ConcertSchedule findConcertSchedule(Long scheduleId) {
         return concertScheduleJpaRepository.findById(scheduleId)
                 .map(ConcertScheduleEntity::of)
-                .orElseThrow(() -> new CoreException(ErrorCode.SCHEDULE_NOT_FOUND));
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "검색한 일정 ID: " + scheduleId));
     }
 
     @Override
@@ -70,9 +71,17 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     }
 
     @Override
+    @Transactional
     public Seat findSeat(Long seatId) {
         return seatJpaRepository.findBySeatId(seatId)
                 .map(SeatEntity::of)
-                .orElseThrow(() -> new CoreException(ErrorCode.SEAT_NOT_FOUND));
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "검색한 좌석 ID: " + seatId));
+    }
+
+    @Override
+    public Seat findById(Long seatId) {
+        return seatJpaRepository.findById(seatId)
+                .map(SeatEntity::of)
+                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "검색한 좌석 ID: " + seatId));
     }
 }

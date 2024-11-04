@@ -1,15 +1,16 @@
 package hhplus.concert.support.exception;
 
-import hhplus.concert.support.code.ErrorCode;
+import hhplus.concert.support.code.ErrorType;
 import lombok.Getter;
 
 @Getter
 public class CoreException extends RuntimeException {
+    private final ErrorType errorType;
+    private final Object payload;
 
-    private final ErrorCode errorCode;
-
-    public CoreException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+    public CoreException(ErrorType errorType, Object payload) {
+        super(errorType.getMessage());
+        this.errorType = errorType;
+        this.payload = payload;
     }
 }

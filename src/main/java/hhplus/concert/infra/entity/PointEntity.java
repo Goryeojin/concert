@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -29,12 +30,12 @@ public class PointEntity {
 
     private LocalDateTime lastUpdatedAt;
 
-    public Point of(PointEntity entity) {
+    public Point of() {
         return Point.builder()
-                .id(entity.getId())
-                .userId(entity.getUser().getId())
-                .amount(entity.getAmount())
-                .lastUpdatedAt(entity.getLastUpdatedAt())
+                .id(id)
+                .userId(user.getId())
+                .amount(amount)
+                .lastUpdatedAt(lastUpdatedAt)
                 .build();
     }
 

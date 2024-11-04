@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -55,15 +56,15 @@ public class ReservationEntity {
                 .build();
     }
 
-    public Reservation of(ReservationEntity entity) {
+    public Reservation of() {
         return Reservation.builder()
-                .id(entity.id)
-                .concertId(entity.getConcert().getId())
-                .scheduleId(entity.getSchedule().getId())
-                .seatId(entity.getSeat().getId())
-                .userId(entity.getUser().getId())
-                .status(entity.status)
-                .reservationAt(entity.getReservationAt())
+                .id(id)
+                .concertId(concert.getId())
+                .scheduleId(schedule.getId())
+                .seatId(seat.getId())
+                .userId(user.getId())
+                .status(status)
+                .reservationAt(reservationAt)
                 .build();
     }
 }

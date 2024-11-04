@@ -36,15 +36,15 @@ public class QueueEntity {
 
     private LocalDateTime expiredAt;
 
-    public Queue of(QueueEntity entity) {
+    public Queue of() {
         return Queue.builder()
-                .id(entity.getId())
-                .userId(entity.getUser().getId())
-                .token(entity.getToken())
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
-                .enteredAt(entity.getEnteredAt())
-                .expiredAt(entity.getExpiredAt())
+                .id(id)
+                .userId(user.getId())
+                .token(token)
+                .status(status)
+                .createdAt(createdAt)
+                .enteredAt(enteredAt)
+                .expiredAt(expiredAt)
                 .build();
     }
 

@@ -1,8 +1,8 @@
 package hhplus.concert.interfaces.interceptor;
 
 import hhplus.concert.domain.service.QueueService;
-import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.code.ErrorType;
+import hhplus.concert.support.exception.CoreException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

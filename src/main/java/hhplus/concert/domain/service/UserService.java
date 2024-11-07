@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-    public void existsUser(Long userId) {
+    public void validateUser(Long userId) {
         userRepository.existsUser(userId);
     }
 }

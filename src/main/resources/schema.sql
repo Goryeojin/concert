@@ -51,13 +51,3 @@ CREATE TABLE point (
     amount INT,
     last_updated_at TIMESTAMP
 );
-
-CREATE TABLE queue (
-    id BIGINT PRIMARY KEY,
-    user_id BIGINT, -- 외래 키 설정 안함
-    token VARCHAR(255),
-    status VARCHAR(50),
-    created_at TIMESTAMP,
-    entered_at TIMESTAMP,
-    expired_at TIMESTAMP
-);

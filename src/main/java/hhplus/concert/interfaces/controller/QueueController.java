@@ -21,19 +21,19 @@ public class QueueController {
 
     // 대기열 등록, 토큰 발급
     @PostMapping("/tokens")
-    public ResponseEntity<QueueDto.QueueResponse> createToken(@Valid @RequestBody QueueDto.QueueRequest request) {
-        Queue token = queueFacade.createToken(request.userId());
+    public ResponseEntity<QueueDto.QueueResponse> issueToken(@Valid @RequestBody QueueDto.QueueRequest request) {
+        Queue token = queueFacade.issueToken("queue", request.userId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(QueueDto.QueueResponse.of(token));
     }
 
     // 대기열 상태 조회
     @GetMapping("/status")
-    public ResponseEntity<QueueDto.QueueResponse> getStatus(
+    public ResponseEntity<QueueDto.QueueResponse> status(
             @RequestHeader("Token") @NotBlank String token,
             @RequestHeader("User-Id") Long userId
     ) {
-        Queue queue = queueFacade.getStatus(token, userId);
-        return ok(QueueDto.QueueResponse.statusOf(queue));
+        Queue queue = queueFacade.status(token, userId);
+        return ok(QueueDto.QueueResponse.of(queue));
     }
 }

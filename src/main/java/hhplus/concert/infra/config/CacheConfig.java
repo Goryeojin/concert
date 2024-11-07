@@ -32,7 +32,7 @@ public class CacheConfig {
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration(Duration.ofMinutes(10)))
                 .withInitialCacheConfigurations(Map.of(
-                        "shortLivedCache", redisCacheConfiguration(Duration.ofSeconds(1)
+                        "shortLivedCache", redisCacheConfiguration(Duration.ofSeconds(5)
                 )))
                 .build();
     }
@@ -52,7 +52,7 @@ public class CacheConfig {
     public CaffeineCacheManager caffeineCacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .expireAfterWrite(5, TimeUnit.SECONDS)
                 .maximumSize(5000));
         return cacheManager;
     }

@@ -5,6 +5,7 @@ import hhplus.concert.domain.service.PointService;
 import hhplus.concert.domain.service.UserService;
 import hhplus.concert.support.aop.DistributedLock;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,19 +15,20 @@ public class PointFacade {
     private final UserService userService;
     private final PointService pointService;
 
+    @Cacheable(value = "point", key = "#userId", cacheManager = "caffeineCacheManager")
     public Point getPoint(Long userId) {
-        userService.existsUser(userId);
+        userService.validateUser(userId);
         return pointService.getPoint(userId);
     }
 
     public Point chargePoint(Long userId, Long amount) {
-        userService.existsUser(userId);
+        userService.validateUser(userId);
         return pointService.chargePoint(userId, amount);
     }
 
     @DistributedLock(key = "#lockName")
     public Point chargePoint(String lockName, Long userId, Long amount) {
-        userService.existsUser(userId);
+        userService.validateUser(userId);
         return pointService.chargePointWithoutLock(userId, amount);
     }
 }

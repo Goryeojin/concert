@@ -58,7 +58,7 @@ class PaymentFacadeIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        Queue queue = queueService.createToken(USER_ID);
+        Queue queue = queueService.issueToken(USER_ID);
         token = queue.token(); // 토큰 검증 통과를 위한 토큰 생성
 
         reservation = Reservation.builder()

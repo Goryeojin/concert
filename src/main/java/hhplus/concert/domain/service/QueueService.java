@@ -2,60 +2,57 @@ package hhplus.concert.domain.service;
 
 import hhplus.concert.domain.model.Queue;
 import hhplus.concert.domain.repository.QueueRepository;
-import hhplus.concert.support.type.QueueStatus;
+import hhplus.concert.support.code.ErrorType;
+import hhplus.concert.support.exception.CoreException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class QueueService {
 
     private final QueueRepository queueRepository;
+    private static final long MAX_ACTIVE_TOKENS = 200;
 
-    public Queue getToken(Long userId) {
-        return queueRepository.findQueue(userId);
-    }
-
-    public Queue getToken(String token) {
-        return queueRepository.findQueue(token);
-    }
-
-    public Queue createToken(Long userId) {
+    public Queue issueToken(Long userId) {
         // 활성화 상태 토큰 개수 검색
-        Long activeCount = queueRepository.findByStatus(QueueStatus.ACTIVE);
+        Long activeCount = queueRepository.getActiveTokenCount();
         // 대기 순번 조회
-        Long rank = queueRepository.findByStatus(QueueStatus.WAITING);
+        Long rank = queueRepository.getWaitingTokenCount();
         // 토큰 생성
         Queue token = Queue.createToken(userId, activeCount, rank);
         // 토큰 저장
-        queueRepository.save(token);
+        System.out.println(token);
+        if (token.checkStatus()) {
+            queueRepository.saveActiveToken(token.token());
+        } else {
+            queueRepository.saveWaitingToken(token.token());
+        }
         return token;
     }
 
-    public void expireToken(Queue token) {
-        Queue expiredToken = token.expired();
-        queueRepository.expireToken(expiredToken);
+    public void expireToken(String token) {
+        queueRepository.removeToken(token);
     }
 
-    public Queue checkQueueStatus(Queue queue) {
-        // 대기열 상태를 검증한다. 이때 만료된 토큰 사용 시 401 에러 반환
-        boolean activated = queue.checkStatus();
-        // 활성 상태라면 바로 반환한다.
-        if (activated) return queue;
-        // 대기 중이라면 대기자 수를 조회한다.
-        Long rank = queueRepository.findUserRank(queue.id());
-
-        return Queue.builder()
-                .status(queue.status())
-                .rank(rank)
-                .enteredAt(queue.enteredAt())
-                .expiredAt(queue.expiredAt())
-                .build();
+    public void validateToken(String token) {
+        boolean exists = queueRepository.activeTokenExist(token);
+        if (!exists) throw new CoreException(ErrorType.TOKEN_INVALID, "유효하지 않은 토큰입니다.");
     }
 
-    public Queue validateToken(String token) {
-        Queue queue = queueRepository.findQueue(token);
-        queue.validateToken();
-        return queue;
+    public Queue getToken(String token) {
+        return queueRepository.findToken(token);
+    }
+
+    public void updateActiveTokens() {
+        long activeCount = queueRepository.getActiveTokenCount();
+        if (activeCount < MAX_ACTIVE_TOKENS) {
+            long neededTokens = MAX_ACTIVE_TOKENS - activeCount;
+            List<String> waitingTokens = queueRepository.retrieveAndRemoveWaitingTokens(neededTokens);
+
+            waitingTokens.forEach(queueRepository::saveActiveToken);
+        }
     }
 }

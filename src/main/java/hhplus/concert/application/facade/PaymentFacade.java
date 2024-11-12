@@ -1,6 +1,9 @@
 package hhplus.concert.application.facade;
 
-import hhplus.concert.domain.model.*;
+import hhplus.concert.domain.model.Payment;
+import hhplus.concert.domain.model.Point;
+import hhplus.concert.domain.model.Reservation;
+import hhplus.concert.domain.model.Seat;
 import hhplus.concert.domain.service.*;
 import hhplus.concert.support.aop.DistributedLock;
 import hhplus.concert.support.type.ReservationStatus;
@@ -29,8 +32,7 @@ public class PaymentFacade {
         // 예약 상태를 변경한다.
         Reservation reserved = reservationService.changeStatus(reservation, ReservationStatus.COMPLETED);
         // 결제 완료 시 토큰을 만료로 처리한다.
-        Queue queue = queueService.getToken(token);
-        queueService.expireToken(queue);
+        queueService.expireToken(token);
         // 결제 내역을 생성한다.
         return paymentService.createBill(reserved.id(), userId, seat.seatPrice());
     }
@@ -46,8 +48,7 @@ public class PaymentFacade {
         // 예약 상태를 변경한다.
         Reservation reserved = reservationService.changeStatus(reservation, ReservationStatus.COMPLETED);
         // 결제 완료 시 토큰을 만료로 처리한다.
-        Queue queue = queueService.getToken(token);
-        queueService.expireToken(queue);
+        queueService.expireToken(token);
         // 결제 내역을 생성한다.
         return paymentService.createBill(reserved.id(), userId, seat.seatPrice());
     }

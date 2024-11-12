@@ -1,19 +1,16 @@
 package hhplus.concert.domain.model;
 
-import hhplus.concert.support.exception.CoreException;
-import hhplus.concert.support.code.ErrorType;
 import hhplus.concert.support.type.QueueStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class QueueTest {
 
     @Test
-    void 대기_순번이_0이고_활성화_토큰이_50개_미만일_때_ACTIVE_상태의_토큰_생성() {
+    void 대기_순번이_0이고_활성화_토큰이_200개_미만일_때_ACTIVE_상태의_토큰_생성() {
         // given
         Long userId = 1L;
         Long activeCount = 30L;
@@ -25,7 +22,6 @@ class QueueTest {
         // then
         assertThat(token.status()).isEqualTo(QueueStatus.ACTIVE);
         assertThat(token.rank()).isEqualTo(0L);
-        assertThat(token.enteredAt()).isNotNull();
         assertThat(token.expiredAt()).isNotNull();
     }
 
@@ -42,7 +38,6 @@ class QueueTest {
         // then
         assertThat(token.status()).isEqualTo(QueueStatus.WAITING);
         assertThat(token.rank()).isEqualTo(2L); // rank 는 activeCount 가 50 이상일 때에는 대기해야 하므로 +1 추가됨.
-        assertThat(token.enteredAt()).isNull();
         assertThat(token.expiredAt()).isNull();
     }
 
@@ -50,7 +45,6 @@ class QueueTest {
     void 토큰을_만료_상태로_변경한다() {
         // given
         Queue token = Queue.builder()
-                .id(1L)
                 .status(QueueStatus.ACTIVE)
                 .expiredAt(LocalDateTime.now().plusMinutes(10))
                 .build();
@@ -61,19 +55,6 @@ class QueueTest {
         // then
         assertThat(expiredToken.status()).isEqualTo(QueueStatus.EXPIRED);
         assertThat(expiredToken.expiredAt()).isBeforeOrEqualTo(LocalDateTime.now());
-    }
-
-    @Test
-    void 토큰_상태_체크_시_EXIPRED라면_에러_반환() {
-        // given
-        Queue token = Queue.builder()
-                .status(QueueStatus.EXPIRED)
-                .build();
-
-        // when & then
-        assertThatThrownBy(token::checkStatus)
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.TOKEN_INVALID.getMessage());
     }
 
     @Test
@@ -91,35 +72,10 @@ class QueueTest {
     }
 
     @Test
-    void 토큰_유효성_검증_시_만료_시간이_현재보다_이전이면_에러_반환() {
-        // given
-        Queue expiredToken = Queue.builder()
-                .expiredAt(LocalDateTime.now().minusMinutes(1))
-                .build();
-
-        // when & then
-        assertThatThrownBy(expiredToken::validateToken)
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.TOKEN_INVALID.getMessage());
-    }
-
-    @Test
-    void 토큰_유효성_검증_시_만료_시간이_없다면_대기중이어서_에러_반환() {
-        // given
-        Queue expiredToken = Queue.builder()
-                .expiredAt(null)
-                .build();
-
-        // when & then
-        assertThatThrownBy(expiredToken::validateToken)
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.TOKEN_INVALID.getMessage());
-    }
-
-    @Test
-    void 토큰_유효성_검증_시_만료_되지_않았다면_성공() {
+    void 토큰_유효성_검증_시_활성_상태라면_성공() {
         // given
         Queue validToken = Queue.builder()
+                .status(QueueStatus.ACTIVE)
                 .expiredAt(LocalDateTime.now().plusMinutes(10))
                 .build();
 

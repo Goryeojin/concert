@@ -18,21 +18,30 @@ public class ConcertFacade {
 
     private final ConcertService concertService;
 
-    @Cacheable(value = "concert", key = "'concert'", cacheManager = "redisCacheManager")
+    /**
+     * 콘서트 목록 조회
+     */
+    @Cacheable(value = "concert", key = "'all'", cacheManager = "redisCacheManager")
     public List<Concert> getConcerts() {
         return concertService.getConcerts();
     }
 
+    /**
+     * 예약 가능한 일정 조회
+     */
     @Cacheable(value = "schedule", key = "#concertId", cacheManager = "redisCacheManager")
     public List<ConcertSchedule> getConcertSchedules(Long concertId) {
         Concert concert = concertService.getConcert(concertId);
         return concertService.getConcertSchedules(concert);
     }
 
+    /**
+     * 예약 가능한 좌석 조회
+     */
     @Cacheable(value = "shortLivedCache", key = "#scheduleId", cacheManager = "redisCacheManager")
     public SeatsResult getSeats(Long concertId, Long scheduleId) {
         Concert concert = concertService.getConcert(concertId);
-        ConcertSchedule schedule = concertService.scheduleInfo(scheduleId);
+        ConcertSchedule schedule = concertService.getSchedule(scheduleId);
         List<Seat> seats = concertService.getSeats(concert.id(), schedule.id(), SeatStatus.AVAILABLE);
 
         return SeatsResult.from(schedule, seats);

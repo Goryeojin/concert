@@ -54,7 +54,6 @@ public class QueueFacadeIntegrationTest {
         }
 
         // then
-        // 앞선 50명의 토큰이 ACTIVE 상태인지 검증
         for (Queue queue : tokenList) {
             QueueStatus status = queue.status();
             if (status.equals(QueueStatus.ACTIVE)) {
@@ -68,6 +67,6 @@ public class QueueFacadeIntegrationTest {
         assertThat(activeCnt + waitingCnt).isEqualTo(201);
 
         // WAITING 토큰이 1개인지 검증한다.
-        assertThat(activeCnt).isOne();
+        assertThat(waitingCnt).isOne();
     }
 }

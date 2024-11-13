@@ -3,6 +3,7 @@ package hhplus.concert.domain.repository;
 import hhplus.concert.domain.model.Queue;
 
 import java.util.List;
+import java.util.Set;
 
 public interface QueueRepository {
 
@@ -14,11 +15,13 @@ public interface QueueRepository {
 
     Long getWaitingTokenCount();
 
-    void saveActiveToken(String token);
+    void saveActiveToken(Object token);
 
     void saveWaitingToken(String token);
 
-    List<String> retrieveAndRemoveWaitingTokens(long neededTokens);
+    List<Object> getWaitingTokens(long neededTokens);
 
     Queue findToken(String token);
+
+    void removeWaitingToken(Set<Object> strings);
 }

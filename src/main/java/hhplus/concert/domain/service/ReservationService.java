@@ -28,13 +28,6 @@ public class ReservationService {
         return reservation;
     }
 
-    public Reservation checkReservationWithoutLock(Long reservationId, Long userId) {
-        Reservation reservation = reservationRepository.findByIdWithoutLock(reservationId);
-        // 예약 정보를 확인한다.
-        reservation.checkValidation(userId);
-        return reservation;
-    }
-
     public Reservation changeStatus(Reservation reservation, ReservationStatus status) {
         Reservation changedReservation = reservation.changeStatus(status);
         return reservationRepository.save(changedReservation);

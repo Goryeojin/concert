@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
@@ -74,14 +73,13 @@ class PaymentFacadeIntegrationTest {
     }
 
     @Test
-    @Transactional
     void 잔액이_충분하다면_결제에_성공한다() {
         // given
         Point point = pointService.getPoint(USER_ID);
         pointService.chargePoint(USER_ID, 10_000L);
 
         // when
-        Payment payment = paymentFacade.payment(token, reservation.id(), USER_ID);
+        Payment payment = paymentFacade.processPayment("userId" + USER_ID, token, reservation.id(), USER_ID);
 
         // then
         assertThat(payment).isNotNull();
@@ -99,7 +97,7 @@ class PaymentFacadeIntegrationTest {
     void 잔액이_부족할_경우_PAYMENT_FAILED_AMOUNT_에러를_반환한다() {
         // when & then
         // 잔액을 충전하지 않을 경우 잔액은 0이기 때문에 결제에 실패한다.
-        assertThatThrownBy(() -> paymentFacade.payment(token, reservation.id(), USER_ID))
+        assertThatThrownBy(() -> paymentFacade.processPayment("userId" + USER_ID, token, reservation.id(), USER_ID))
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorType.PAYMENT_FAILED_AMOUNT.getMessage());
     }
@@ -107,7 +105,7 @@ class PaymentFacadeIntegrationTest {
     @Test
     void 예약자와_결제자_정보가_상이할_경우_PAYMENT_DIFFERENT_USER_에러를_반환한다() {
         // when & then
-        assertThatThrownBy(() -> paymentFacade.payment(token, reservation.id(), 2L)) // 예약자 ID: 1L, 결제자 ID: 2L
+        assertThatThrownBy(() -> paymentFacade.processPayment("userId" + USER_ID, token, reservation.id(), 2L)) // 예약자 ID: 1L, 결제자 ID: 2L
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorType.PAYMENT_DIFFERENT_USER.getMessage());
     }
@@ -125,7 +123,7 @@ class PaymentFacadeIntegrationTest {
                 .build();
         reservationRepository.save(timeHasPassedReservation);
         // when & then
-        assertThatThrownBy(() -> paymentFacade.payment(token, timeHasPassedReservation.id(), USER_ID))
+        assertThatThrownBy(() -> paymentFacade.processPayment("userId" + USER_ID, token, timeHasPassedReservation.id(), USER_ID))
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorType.PAYMENT_TIMEOUT.getMessage());
     }
@@ -143,13 +141,13 @@ class PaymentFacadeIntegrationTest {
                 .build();
         reservationRepository.save(alreadyReserved);
         // when & then
-        assertThatThrownBy(() -> paymentFacade.payment(token, alreadyReserved.id(), USER_ID))
+        assertThatThrownBy(() -> paymentFacade.processPayment("userId" + USER_ID, token, alreadyReserved.id(), USER_ID))
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorType.ALREADY_PAID.getMessage());
     }
 
     @Test
-    void 비관적락_사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
+    void 사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
         // given
         pointService.chargePoint(USER_ID, 100_000L);
 
@@ -163,46 +161,7 @@ class PaymentFacadeIntegrationTest {
         for(int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 try {
-                    paymentFacade.payment(token, reservation.id(), USER_ID);
-                    successCnt.incrementAndGet();
-                } catch(Exception e) {
-                    logger.warn(e.getMessage());
-                    failCnt.incrementAndGet();
-                }
-                finally {
-                    countDownLatch.countDown();
-                }
-            }).start();
-        }
-        countDownLatch.await();
-
-        Thread.sleep(1000);
-
-        // 결제 요청이 한 번만 수행됐는지 검증한다.
-        assertThat(successCnt.intValue()).isOne();
-        // 실패한 횟수가 threadCount 에서 성공한 횟수를 뺀 값과 같은지 검증한다.
-        assertThat(failCnt.intValue()).isEqualTo(threadCount - successCnt.intValue());
-        // 결제 후 잔액이 충전금액 - 사용금액 인지 검증한다.
-        Point point = pointService.getPoint(USER_ID);
-        assertThat(point.amount()).isEqualTo(100_000L - 10_000L);
-    }
-
-    @Test
-    void 분산락_사용자가_동시에_여러_번_결제를_요청하면_한_번만_성공한다() throws InterruptedException {
-        // given
-        pointService.chargePoint(USER_ID, 100_000L);
-
-        // when
-        AtomicInteger successCnt = new AtomicInteger(0);
-        AtomicInteger failCnt = new AtomicInteger(0);
-
-        final int threadCount = 100;
-        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-
-        for(int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                try {
-                    paymentFacade.payment("PAYMENT:" + reservation.id(), token, reservation.id(), USER_ID);
+                    paymentFacade.processPayment("userId" + USER_ID, token, reservation.id(), USER_ID);
                     successCnt.incrementAndGet();
                 } catch(Exception e) {
                     logger.warn(e.getMessage());

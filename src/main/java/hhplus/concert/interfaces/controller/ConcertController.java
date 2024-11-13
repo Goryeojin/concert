@@ -25,14 +25,18 @@ public class ConcertController {
 
     private final ConcertFacade concertFacade;
 
-    // 콘서트 목록 조회
+    /**
+     * 콘서트 목록 조회
+     */
     @GetMapping
     public ResponseEntity<GetConcertDto.ConcertResponse> getConcerts() {
         List<Concert> concerts = concertFacade.getConcerts();
         return ok(GetConcertDto.ConcertResponse.of(concerts));
     }
 
-    // 예약 가능한 일정 조회
+    /**
+     * 예약 가능한 일정 조회
+     */
     @GetMapping("/{concertId}/schedules")
     public ResponseEntity<GetScheduleDto.ScheduleResponse> getConcertSchedules(
             @PathVariable Long concertId
@@ -41,7 +45,9 @@ public class ConcertController {
         return ok(GetScheduleDto.ScheduleResponse.of(concertId, schedules));
     }
 
-    // 예약 가능한 좌석 조회
+    /**
+     * 예약 가능한 좌석 조회
+     */
     @GetMapping("/{concertId}/schedules/{scheduleId}/seats")
     public ResponseEntity<GetSeatDto.SeatResponse> getSeats(
             @PathVariable Long concertId,

@@ -9,6 +9,7 @@ import hhplus.concert.support.exception.CoreException;
 import hhplus.concert.support.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,16 +25,10 @@ public class ReservationRepositoryImpl implements ReservationRepository {
         return reservationJpaRepository.save(ReservationEntity.from(reservation)).of();
     }
 
+    @Transactional
     @Override
     public Reservation findById(Long reservationId) {
         return reservationJpaRepository.findByReservationId(reservationId)
-                .map(ReservationEntity::of)
-                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "예약 ID: " + reservationId));
-    }
-
-    @Override
-    public Reservation findByIdWithoutLock(Long reservationId) {
-        return reservationJpaRepository.findByReservationIdWithoutLock(reservationId)
                 .map(ReservationEntity::of)
                 .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "예약 ID: " + reservationId));
     }

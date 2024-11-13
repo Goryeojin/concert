@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,17 +111,24 @@ class QueueServiceTest {
 
     @Test
     void 활성_토큰이_200개_미만이면_대기열_토큰을_활성_상태로_변경한다() {
-        // Given
-        when(queueRepository.getActiveTokenCount()).thenReturn(150L); // 현재 활성 토큰이 150개
-        List<String> waitingTokens = List.of("waiting-token1", "waiting-token2"); // 대기열에서 가져올 토큰
-        when(queueRepository.retrieveAndRemoveWaitingTokens(50L)).thenReturn(waitingTokens); // 대기열에서 토큰을 2개 가져옴
+        // given
+        long activeTokenCount = 190L; // 예를 들어 현재 활성 토큰이 190개라고 가정
+        long neededTokens = 200L - activeTokenCount; // 필요 토큰 수는 10개
+        List<Object> waitingTokens = Arrays.asList("waiting-token1", "waiting-token2");
 
-        // When
+        when(queueRepository.getActiveTokenCount()).thenReturn(activeTokenCount);
+        when(queueRepository.getWaitingTokens(neededTokens)).thenReturn(waitingTokens);
+
+        // when
         queueService.updateActiveTokens();
 
-        // Then
-        verify(queueRepository).saveActiveToken("waiting-token1"); // 첫 번째 대기 토큰을 활성 상태로 저장
-        verify(queueRepository).saveActiveToken("waiting-token2"); // 두 번째 대기 토큰을 활성 상태로 저장
+        // then
+        verify(queueRepository).getActiveTokenCount();
+        verify(queueRepository).getWaitingTokens(neededTokens);
+        verify(queueRepository).removeWaitingToken(new HashSet<>(waitingTokens));
+
+        // 개별 토큰이 saveActiveToken으로 저장되었는지 확인
+        waitingTokens.forEach(token -> verify(queueRepository).saveActiveToken(token));
     }
 
     @Test
@@ -131,7 +140,7 @@ class QueueServiceTest {
         queueService.updateActiveTokens();
 
         // then
-        verify(queueRepository, never()).retrieveAndRemoveWaitingTokens(anyLong()); // 대기열에서 토큰을 가져오는 동작이 발생하지 않음
+        verify(queueRepository, never()).getWaitingTokens(anyLong()); // 대기열에서 토큰을 가져오는 동작이 발생하지 않음
 
     }
 }

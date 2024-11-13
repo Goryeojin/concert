@@ -21,14 +21,9 @@ public class PointFacade {
         return pointService.getPoint(userId);
     }
 
-    public Point chargePoint(Long userId, Long amount) {
-        userService.validateUser(userId);
-        return pointService.chargePoint(userId, amount);
-    }
-
     @DistributedLock(key = "#lockName")
     public Point chargePoint(String lockName, Long userId, Long amount) {
         userService.validateUser(userId);
-        return pointService.chargePointWithoutLock(userId, amount);
+        return pointService.chargePoint(userId, amount);
     }
 }

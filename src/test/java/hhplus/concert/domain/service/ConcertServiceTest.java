@@ -113,7 +113,7 @@ class ConcertServiceTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> concertService.isAvailableReservation(schedule, unavailableSeat))
+        assertThatThrownBy(() -> concertService.validateReservationAvailability(schedule, unavailableSeat))
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorType.SEAT_UNAVAILABLE.getMessage());
     }
@@ -125,7 +125,7 @@ class ConcertServiceTest {
         Seat seat = mock(Seat.class);
 
         // when & then
-        assertThatThrownBy(() -> concertService.isAvailableReservation(schedule, seat))
+        assertThatThrownBy(() -> concertService.validateReservationAvailability(schedule, seat))
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorType.AFTER_DEADLINE.getMessage());
     }

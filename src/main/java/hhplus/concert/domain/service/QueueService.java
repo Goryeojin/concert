@@ -7,6 +7,7 @@ import hhplus.concert.support.exception.CoreException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -24,7 +25,6 @@ public class QueueService {
         // 토큰 생성
         Queue token = Queue.createToken(userId, activeCount, rank);
         // 토큰 저장
-        System.out.println(token);
         if (token.checkStatus()) {
             queueRepository.saveActiveToken(token.token());
         } else {
@@ -50,9 +50,12 @@ public class QueueService {
         long activeCount = queueRepository.getActiveTokenCount();
         if (activeCount < MAX_ACTIVE_TOKENS) {
             long neededTokens = MAX_ACTIVE_TOKENS - activeCount;
-            List<String> waitingTokens = queueRepository.retrieveAndRemoveWaitingTokens(neededTokens);
+            List<Object> waitingTokens = queueRepository.getWaitingTokens(neededTokens);
 
-            waitingTokens.forEach(queueRepository::saveActiveToken);
+            if (!waitingTokens.isEmpty()) {
+                queueRepository.removeWaitingToken(new HashSet<>(waitingTokens));
+                waitingTokens.forEach(queueRepository::saveActiveToken);
+            }
         }
     }
 }

@@ -65,16 +65,16 @@ and
 ```
 
 #### 3. 예약 가능 좌석 조회
-- 설명: 사용자가 특정 콘서트의 예약 가능한 좌석을 조회하기 위해 사용된다. seat 테이블과 concert_schedule 테이블에서 concert_schedule_id 를 조인, concert 테이블에서 concert_id 를 조인, status 조건에 맞는 데이터를 조회한다.
+- 설명: 사용자가 특정 콘서트의 예약 가능한 좌석을 조회하기 위해 사용된다. `seat` 테이블과 `concert_schedule` 테이블에서 `concert_schedule_id` 를 조인, `concert` 테이블에서 `concert_id` 를 조인, `status` 조건에 맞는 데이터를 조회한다.
 - 빈도: ★★★★★
   - 예약 가능한 좌석을 조회할 때마다 호출되므로 자주 사용된다.
 - 복잡도: ★★★☆☆
   - 두 개의 테이블과 조인하고, 좌석의 상태를 필터링해야 하므로 복잡하다.
-  - concert_id 를 기준으로 concert 테이블과 조인하고, concert_schedule_id 를 기준으로 concert_schedule 테이블과 조인하고, status 필드를 검사한다.
+  - `concert_id` 를 기준으로 `concert` 테이블과 조인하고, `concert_schedule_id` 를 기준으로 `concert_schedule` 테이블과 조인하고, `status` 필드를 검사한다.
 - 쿼리
-  1. concert 테이블에서 concert_id 로 특정 콘서트를 조회하는 쿼리
-  2. concert_schedule 테이블에서 concert_schedule_id 로 특정 콘서트 일정을 조회하는 쿼리
-  3. seat 테이블에서 status 로 예약 가능한 좌석을 조회하는 쿼리
+  1. `concert` 테이블에서 `concert_id` 로 특정 콘서트를 조회하는 쿼리
+  2. `concert_schedule` 테이블에서 `concert_schedule_id` 로 특정 콘서트 일정을 조회하는 쿼리
+  3. `seat` 테이블에서 `status` 로 예약 가능한 좌석을 조회하는 쿼리
 ```sql
 select 
   ce1_0.id,
@@ -117,13 +117,13 @@ and
 ```
 
 #### 4. 포인트 조회
-- 설명: 특정 사용자의 포인트 잔액을 조회한다. point 테이블에서 사용자의 잔액 관련 데이터를 가져온다.
+- 설명: 특정 사용자의 포인트 잔액을 조회한다. `point` 테이블에서 사용자의 잔액 관련 데이터를 가져온다.
 - 빈도: ★★★☆☆
   - 포인트 잔액을 확인할 때마다 조회되지만, 다른 서비스에 비해 상대적으로 빈도가 낮을 수 있다.
 - 복잡도: ★☆☆☆☆
   - 단일 테이블에서 하나의 조건으로 데이터를 조회하기 때문에 복잡도가 낮다.
 - 쿼리
-  1. user_id 로 포인트 정보를 조회하는 쿼리
+  1. `user_id` 로 포인트 정보를 조회하는 쿼리
 ```sql
 select 
   pe1_0.id,
@@ -143,7 +143,7 @@ where
 - 복잡도: ★☆☆☆☆
   - 단일 테이블에서 하나의 조건으로 데이터를 업데이트하기 때문에 복잡도가 낮다.
 - 쿼리
-  1. point 테이블의 id 로 사용자의 잔액을 업데이트하는 쿼리
+  1. `point` 테이블의 `id` 로 사용자의 잔액을 업데이트하는 쿼리
 ```sql
 update 
   point 
@@ -163,10 +163,10 @@ where
 - 복잡도: ★★★★☆
   - 여러 테이블을 조회하고, 데이터를 삽입하거나 업데이트한다. 좌석의 예약 가능 여부를 확인하고, 예약을 처리하는 과정에서 데이터 무결성을 유지해야 한다.
 - 쿼리
-  1. concert_schedule 테이블에서 schedule_id 로 조회하는 쿼리
-  2. seat 테이블에서 id 로 조회하는 쿼리
-  3. reservation 테이블에 새로운 예약 데이터를 삽입하는 쿼리
-  4. seat 테이블에서 id 로 특정 좌석의 상태를 업데이트하는 쿼리
+  1. `concert_schedule` 테이블에서 `schedule_id` 로 조회하는 쿼리
+  2. `seat` 테이블에서 `id` 로 조회하는 쿼리
+  3. `reservation` 테이블에 새로운 예약 데이터를 삽입하는 쿼리
+  4. `seat` 테이블에서 `id` 로 특정 좌석의 상태를 업데이트하는 쿼리
 ```sql
 select 
   cse1_0.id,
@@ -207,18 +207,18 @@ where
 ```
 
 #### 7. 결제
-- 설명: 결제 처리를 위한 데이터 조회를 위해 다양한 테이블을 조회한다. reservation, point, seat 테이블을 조회하여 데이터의 일관성과 무결성을 유지한다.
+- 설명: 결제 처리를 위한 데이터 조회를 위해 다양한 테이블을 조회한다. `reservation`, `point`, `seat` 테이블을 조회하여 데이터의 일관성과 무결성을 유지한다.
 - 빈도: ★★★★★
   - 결제는 콘서트 예약에서 자주 발생한다. 
 - 복잡도: ★★★☆☆
   - 단일 테이블에서 간단한 조건으로 조회되지만, 데이터의 일관성 유지와 트랜잭션 처리가 있어 복잡도를 가진다.
 - 쿼리
-  1. reservation 테이블에서 id 로 예약 데이터를 조회하는 쿼리
-  2. seat 테이블에서 id 로 좌석 데이터를 조회하는 쿼리
-  3. point 테이블에서 user_id 로 잔액을 조회하는 쿼리
-  4. payment 테이블에 결제 내역 데이터를 삽입하는 쿼리
-  5. reservation 테이블의 예약 상태를 업데이트하는 쿼리
-  6. point 테이블의 잔액을 업데이트하는 쿼리
+  1. `reservation` 테이블에서 `id` 로 예약 데이터를 조회하는 쿼리
+  2. `seat` 테이블에서 `id` 로 좌석 데이터를 조회하는 쿼리
+  3. `point` 테이블에서 `user_id` 로 잔액을 조회하는 쿼리
+  4. `payment` 테이블에 결제 내역 데이터를 삽입하는 쿼리
+  5. `reservation` 테이블의 예약 상태를 업데이트하는 쿼리
+  6. `point` 테이블의 잔액을 업데이트하는 쿼리
 ```sql
 select 
   re1_0.id,
@@ -283,15 +283,15 @@ where
 ## 인덱스 적절성 판단 및 설정
 ### concert
 - 현재 API 는 검색 조건이 존재하지 않기 때문에 인덱스는 불필요하다.
-- concert 의 특성을 고려할 때, 향후 검색 요구가 발생할 가능성을 대비해볼 수 있다.
-- concert 는 생성 빈도가 낮아 인덱스 생성이 큰 부담이 되지 않는다.
+- `concert` 의 특성을 고려할 때, 향후 검색 요구가 발생할 가능성을 대비해볼 수 있다.
+- `concert` 는 생성 빈도가 낮아 인덱스 생성이 큰 부담이 되지 않는다.
 
-1. title 컬럼 인덱스
+1. `title` 컬럼 인덱스
 - 필요성: concert 제목으로 검색하는 경우가 발생할 수 있다. 중복값이 적고, 검색 성능 향상에 기여할 수 있다.
 - cardinality: 높음
 - 변경 빈도: 낮음
 
-2. status 컬럼 인덱스
+2. `status` 컬럼 인덱스
 - 필요성: 예약 가능 상태를 기준으로 조회하는 경우가 발생할 수 있다.
 - cardinality: 낮음 (열거형으로 여러 콘서트가 동일한 상태를 가질 수 있음)
 - 변경 빈도: 중간 (예약 이벤트가 종료되면 상태 변경 가능)
@@ -318,13 +318,13 @@ public class ConcertEntity {
 
 ### concert_schedule
 #### 단일 인덱스
-1. concert_id
-- 필요성: 대부분 쿼리에서 concert_id 를 사용하여 concert_schedule 테이블을 조회한다. 
+1. `concert_id`
+- 필요성: 대부분 쿼리에서 `concert_id` 를 사용하여 `concert_schedule` 테이블을 조회한다. 
 - cardinality: 중간 (여러 일정이 동일한 concert_id 를 가질 수 있음)
 - 변경 빈도: 낮음 (일정이 생성된 후 변경 가능성 낮음)
 
 #### 복합 인덱스
-1. concert_id, reservation_at, deadline
+1. `concert_id`, `reservation_at`, `deadline`
 - 필요성: 예약 가능 날짜 조회 요청에서 자주 사용된다.
 - cardinality: 중간
 - 변경 빈도: 낮음 (생성 후 변경 가능성 낮음)
@@ -351,14 +351,14 @@ public class ConcertScheduleEntity {
 
 ### seat
 #### 단일 인덱스
-1. concert_schedule_id
-- 필요성: 대부분의 쿼리에서 concert_schedule_id 를 사용하여 seat 테이블을 조회한다.
-- cardinality: 중간 (여러 좌석이 동일한 schedule_id 를 가질 수 있음)
+1. `concert_schedule_id`
+- 필요성: 대부분의 쿼리에서 `concert_schedule_id` 를 사용하여 seat 테이블을 조회한다.
+- cardinality: 중간 (여러 좌석이 동일한 `schedule_id` 를 가질 수 있음)
 - 변경 빈도: 낮음
 
 #### 복합 인덱스
-1. concert_schedule_id, status
-- 필요성: 예약 가능 좌석 조회와 관련된 쿼리에서 concert_schedule_id 와 status 를 함께 사용하여 조회한다.
+1. `concert_schedule_id`, `status`
+- 필요성: 예약 가능 좌석 조회와 관련된 쿼리에서 `concert_schedule_id` 와 `status` 를 함께 사용하여 조회한다.
 - cardinality: 중간
 - 변경 빈도: 중간 (좌석의 예약 상태는 자주 변경될 수 있음)
 
@@ -389,7 +389,7 @@ public class SeatEntity {
 
 ### point
 #### 단일 인덱스
-1. user_id
+1. `user_id`
 - 필요성: 사용자 잔액 조회/충전/결제에서 빈번히 사용된다.
 - cardinality: 높음 (사용자 ID는 PK 이므로 중복도가 매우 낮음)
 - 변경 빈도: 낮음
@@ -413,18 +413,18 @@ public class PointEntity {
 
 ### reservation
 #### 단일 인덱스
-1. user_id
+1. `user_id`
 - 필요성: 사용자와 관련된 모든 예약을 조회하는 데 사용될 수 있음 (현재 API 제공은 하지 않음)
 - cardinality: 높음
 - 변경 빈도: 낮음
 
-2. status
+2. `status`
 - 필요성: 결제되지 않은 예약 건의 좌석 상태를 변경할 때 사용된다.
 - cardinality: 중간 (여러 예약이 동일한 상태를 가질 수 있음)
 - 변경 빈도: 중간
 
 #### 복합 인덱스
-1. concert_id, concert_schedule_id, seat_id
+1. `concert_id`, `concert_schedule_id`, `seat_id`
 - 필요성: 특정 좌석에 대한 예약 내역을 조회할 때 사용된다.
 - cardinality: 중간 (컬럼 조합으로 유일한 식별자가 된다)
 - 변경 빈도: 낮음
@@ -462,10 +462,10 @@ public class ReservationEntity {
 
 ### payment
 - 현재 API 는 검색 조건이 존재하지 않기 때문에 인덱스는 불필요하다.
-- payment 의 특성을 고려할 때, 향후 검색 요구가 발생할 가능성을 대비해볼 수 있다.
+- `payment` 의 특성을 고려할 때, 향후 검색 요구가 발생할 가능성을 대비해볼 수 있다.
 
 #### 단일 인덱스
-1. user_id
+1. `user_id`
 - 필요성: 특정 사용자의 모든 결제 내역을 조회할 때 사용된다.
 - cardinality: 높음
 - 변경 빈도: 낮음 (결제 시 생성되어 이후 변경이 없음)

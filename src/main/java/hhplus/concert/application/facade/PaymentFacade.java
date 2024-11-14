@@ -1,5 +1,6 @@
 package hhplus.concert.application.facade;
 
+import hhplus.concert.application.component.event.PaymentEventPublisher;
 import hhplus.concert.domain.model.Payment;
 import hhplus.concert.domain.model.Point;
 import hhplus.concert.domain.model.Reservation;
@@ -9,6 +10,7 @@ import hhplus.concert.support.aop.DistributedLock;
 import hhplus.concert.support.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class PaymentFacade {
     private final PaymentService paymentService;
     private final PointService pointService;
     private final ConcertService concertService;
+    private final PaymentEventPublisher eventPublisher;
 
     /**
      * 결제 진행
@@ -37,6 +40,8 @@ public class PaymentFacade {
         // 결제 완료 시 토큰을 만료로 처리한다.
         queueService.expireToken(token);
         // 결제 내역을 생성한다.
-        return paymentService.createBill(reserved.id(), userId, seat.seatPrice());
+        Payment bill = paymentService.createBill(reserved.id(), userId, seat.seatPrice());
+        eventPublisher.success(bill);
+        return bill;
     }
 }

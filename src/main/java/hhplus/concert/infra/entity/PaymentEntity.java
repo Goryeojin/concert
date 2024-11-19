@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity(name = "payment")
+@Table(indexes = @Index(name = "idx_payment_user_id", columnList = "user_id"))
 @Builder
 @Getter
 @NoArgsConstructor

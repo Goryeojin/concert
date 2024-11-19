@@ -19,28 +19,14 @@ public class ReservationFacade {
     private final ConcertService concertService;
     private final ReservationService reservationService;
 
-    @Transactional
-    public ReservationResult reservation(ReservationCommand command) {
-        // 콘서트 상태 조회
-        ConcertSchedule schedule = concertService.scheduleInfo(command.scheduleId());
-        Seat seat = concertService.getSeat(command.seatId());
-        // 예약 가능 상태인지 확인
-        concertService.isAvailableReservation(schedule, seat);
-        // 좌석 점유
-        concertService.assignmentSeat(seat);
-        // 예약 정보 저장
-        Reservation reservation = reservationService.reservation(schedule, seat, command.userId());
-        // 예약 정보 리턴
-        return ReservationResult.from(reservation, schedule, seat);
-    }
-
     @DistributedLock(key = "#lockName")
+    @Transactional
     public ReservationResult reservation(String lockName, ReservationCommand command) {
         // 콘서트 상태 조회
-        ConcertSchedule schedule = concertService.scheduleInfo(command.scheduleId());
-        Seat seat = concertService.getSeatWithoutLock(command.seatId());
+        ConcertSchedule schedule = concertService.getSchedule(command.scheduleId());
+        Seat seat = concertService.getSeat(command.seatId());
         // 예약 가능 상태인지 확인
-        concertService.isAvailableReservation(schedule, seat);
+        concertService.validateReservationAvailability(schedule, seat);
         // 좌석 점유
         concertService.assignmentSeat(seat);
         // 예약 정보 저장

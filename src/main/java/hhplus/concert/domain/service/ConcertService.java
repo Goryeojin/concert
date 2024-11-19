@@ -7,7 +7,6 @@ import hhplus.concert.domain.repository.ConcertRepository;
 import hhplus.concert.support.type.SeatStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -37,20 +36,15 @@ public class ConcertService {
         return concertRepository.findSeats(concertId, scheduleId, status);
     }
 
-    public ConcertSchedule scheduleInfo(Long scheduleId) {
+    public ConcertSchedule getSchedule(Long scheduleId) {
         return concertRepository.findConcertSchedule(scheduleId);
     }
 
-    public void isAvailableReservation(ConcertSchedule schedule, Seat seat) {
+    public void validateReservationAvailability(ConcertSchedule schedule, Seat seat) {
         // 예약 가능 상태인지 확인
         schedule.checkStatus();
         // 예약 가능 좌석인지 확인
         seat.checkStatus();
-    }
-
-    @Transactional
-    public Seat getSeat(Long seatId) {
-        return concertRepository.findSeat(seatId);
     }
 
     public void assignmentSeat(Seat seat) {
@@ -58,7 +52,7 @@ public class ConcertService {
         concertRepository.saveSeat(assignment);
     }
 
-    public Seat getSeatWithoutLock(Long seatId) {
+    public Seat getSeat(Long seatId) {
         return concertRepository.findById(seatId);
     }
 }

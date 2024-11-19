@@ -26,11 +26,4 @@ public class PointRepositoryImpl implements PointRepository {
     public void save(Point updatedPoint) {
         pointJpaRepository.save(PointEntity.from(updatedPoint));
     }
-
-    @Override
-    public Point findPointWithoutLock(Long userId) {
-        return pointJpaRepository.findByUserIdWithoutLock(userId)
-                .map(PointEntity::of)
-                .orElseThrow(() -> new CoreException(ErrorType.RESOURCE_NOT_FOUND, "사용자 ID: " + userId));
-    }
 }

@@ -17,13 +17,15 @@ public class PaymentController {
 
     private final PaymentFacade paymentFacade;
 
-    // 결제 요청
+    /**
+     * 결제 요청
+     */
     @PostMapping
-    public ResponseEntity<PaymentDto.PaymentResponse> proceedPayment(
+    public ResponseEntity<PaymentDto.PaymentResponse> payment(
             @RequestHeader("Token") String token,
             @Valid @RequestBody PaymentDto.PaymentRequest request
     ) {
-        Payment payment = paymentFacade.payment("PAYMENT:" + request.reservationId(), token, request.reservationId(), request.userId());
+        Payment payment = paymentFacade.processPayment("userId:" + request.userId(), token, request.reservationId(), request.userId());
         return ok(PaymentDto.PaymentResponse.of(payment));
     }
 }

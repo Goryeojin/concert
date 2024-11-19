@@ -9,6 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity(name = "concert")
+@Table(indexes = {
+        @Index(name = "idx_concert_title", columnList = "title"),
+        @Index(name = "idx_concert_status", columnList = "status")
+})
 @Getter
 @Builder
 @NoArgsConstructor

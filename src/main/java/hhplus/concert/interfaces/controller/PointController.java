@@ -30,7 +30,7 @@ public class PointController {
             @PathVariable Long userId,
             @Valid @RequestBody PointDto.PointRequest request
     ) {
-        Point point = pointFacade.chargePoint(userId, request.amount());
+        Point point = pointFacade.chargePoint("userId:" + userId, userId, request.amount());
         return ok(PointDto.PointResponse.of(point));
     }
 }

@@ -41,7 +41,7 @@ class PointFacadeIntegrationTest {
         Long chargeAmount = 500L;
 
         // when
-        Point updatedPoint = pointFacade.chargePoint(USER_ID, chargeAmount);
+        Point updatedPoint = pointFacade.chargePoint("userId" + USER_ID, USER_ID, chargeAmount);
 
         // then
         assertThat(updatedPoint.amount()).isEqualTo(500L);
@@ -78,7 +78,7 @@ class PointFacadeIntegrationTest {
         for(int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 try {
-                    pointFacade.chargePoint(USER_ID, chargeAmount);
+                    pointFacade.chargePoint("userId" + USER_ID, USER_ID, chargeAmount);
                     successCnt.incrementAndGet();
                 } catch(Exception e) {
                     logger.warn(e.getMessage());
@@ -103,45 +103,6 @@ class PointFacadeIntegrationTest {
 
     @Test
     @Transactional
-    void 비관적락_사용자가_동시에_여러_번_충전을_요청하면_모두_성공한다() throws InterruptedException {
-        // given
-        long chargeAmount = 100L;
-
-        // when
-        AtomicInteger successCnt = new AtomicInteger(0);
-        AtomicInteger failCnt = new AtomicInteger(0);
-
-        final int threadCount = 100;
-        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-
-        for(int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                try {
-                    pointFacade.chargePoint(USER_ID, chargeAmount);
-                    successCnt.incrementAndGet();
-                } catch(Exception e) {
-                    logger.warn(e.getMessage());
-                    failCnt.incrementAndGet();
-                }
-                finally {
-                    countDownLatch.countDown();
-                }
-            }).start();
-        }
-        countDownLatch.await();
-
-        Thread.sleep(1000);
-
-        Point point = pointFacade.getPoint(USER_ID);
-
-        // 충전 요청 성공 횟수가 스레드 갯수와 같은지 검증한다.
-        assertThat(threadCount).isEqualTo(successCnt.intValue());
-        // 충전된 금액의 정합성이 보장되는지 검증한다.
-        assertThat(chargeAmount * successCnt.intValue()).isEqualTo(point.amount());
-    }
-
-    @Test
-    @Transactional
     void 분산락_사용자가_동시에_여러_번_충전을_요청하면_모두_성공한다() throws InterruptedException {
         // given
         long chargeAmount = 100L;
@@ -156,7 +117,7 @@ class PointFacadeIntegrationTest {
         for(int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 try {
-                    pointFacade.chargePoint("POINT:" + USER_ID, USER_ID, chargeAmount);
+                    pointFacade.chargePoint("userId" + USER_ID, USER_ID, chargeAmount);
                     successCnt.incrementAndGet();
                 } catch(Exception e) {
                     logger.warn(e.getMessage());

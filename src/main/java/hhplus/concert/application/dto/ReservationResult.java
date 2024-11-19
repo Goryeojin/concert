@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Builder
 public record ReservationResult(
-
         Long reservationId,
         Long concertId,
         LocalDateTime concertAt,

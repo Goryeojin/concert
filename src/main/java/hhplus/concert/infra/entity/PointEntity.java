@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity(name = "point")
+@Table(indexes = @Index(name = "idx_point_user_id", columnList = "user_id"))
 @Getter
 @Builder
 @NoArgsConstructor

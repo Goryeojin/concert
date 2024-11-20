@@ -39,7 +39,7 @@ CREATE TABLE concert.reservation (
     concert_schedule_id BIGINT NOT NULL,
     seat_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
-    status ENUM('PENDING', 'CONFIRMED', 'CANCELLED') NOT NULL,
+    status ENUM('PAYMENT_WAITING', 'COMPLETE', 'EXPIRED') NOT NULL,
     reservation_at DATETIME,
     INDEX idx_reservation_user_id (user_id),
     INDEX idx_reservation_status (status),

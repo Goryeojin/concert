@@ -20,7 +20,6 @@ public class QueueRepositoryImpl implements QueueRepository {
 
     private final RedisRepository redisRepository;
 
-    private final RedisTemplate<String, String> redisTemplate;
     private static final String ACTIVE_TOKEN_KEY = "activeToken";
     private static final String WAITING_TOKEN_KEY = "waitingToken";
     private static final Duration TOKEN_TTL = Duration.ofMinutes(10);

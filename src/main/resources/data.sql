@@ -1,16 +1,16 @@
---INSERT INTO users (name) VALUES ('Ryeojin');
+INSERT INTO users (name) VALUES ('Ryeojin');
 --
---INSERT INTO point (user_id, amount) VALUES ('1', 0);
+INSERT INTO point (user_id, amount) VALUES ('1', 100000);
 --
---INSERT INTO concert (title, description, status) VALUES
---('Concert 1', 'Description of Concert 1', 'AVAILABLE'),
---('Concert 2', 'Description of Concert 2', 'AVAILABLE'),
---('Concert 3', 'Description of Concert 3', 'AVAILABLE'),
---('Concert 4', 'Description of Concert 4', 'UNAVAILABLE'),
---('Concert 5', 'Description of Concert 5', 'UNAVAILABLE');
+INSERT INTO concert (title, description, status) VALUES
+('Concert 1', 'Description of Concert 1', 'AVAILABLE'),
+('Concert 2', 'Description of Concert 2', 'AVAILABLE'),
+('Concert 3', 'Description of Concert 3', 'AVAILABLE'),
+('Concert 4', 'Description of Concert 4', 'UNAVAILABLE'),
+('Concert 5', 'Description of Concert 5', 'UNAVAILABLE');
 --
---INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)
---VALUES (1, '2024-10-10 12:00:00', '2024-11-30 23:59:59', '2024-12-01 18:00:00');
+INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)
+VALUES (1, '2024-10-10 12:00:00', '2024-11-30 23:59:59', '2024-12-01 18:00:00');
 --
 --INSERT INTO concert_schedule (concert_id, reservation_at, deadline, concert_at)
 --VALUES (1, '2024-10-12 09:00:00', '2024-11-30 23:59:59', '2024-12-24 19:30:00');
@@ -28,7 +28,7 @@
 --
 --
 ---- 예약 가능한 좌석 (1~25)
---INSERT INTO seat (concert_schedule_id, seat_no, status, seat_price) VALUES (1, 1, 'AVAILABLE', 10000);
+INSERT INTO seat (concert_schedule_id, seat_no, status, seat_price) VALUES (1, 1, 'AVAILABLE', 10000);
 --INSERT INTO seat (concert_schedule_id, seat_no, status, seat_price) VALUES (1, 2, 'AVAILABLE', 10000);
 --INSERT INTO seat (concert_schedule_id, seat_no, status, seat_price) VALUES (1, 3, 'AVAILABLE', 10000);
 --INSERT INTO seat (concert_schedule_id, seat_no, status, seat_price) VALUES (1, 4, 'AVAILABLE', 10000);

@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 	implementation 'org.redisson:redisson-spring-boot-starter:3.37.0'
 	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'mysql:mysql-connector-java:8.0.33'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
@@ -38,6 +39,11 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testImplementation 'org.testcontainers:kafka:1.19.0'
+	testImplementation "org.testcontainers:testcontainers:1.20.3"
+	testCompileOnly 'org.projectlombok:lombok:1.18.30' // 테스트 의존성 추가
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.30' // 테스트 의존성 추가
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

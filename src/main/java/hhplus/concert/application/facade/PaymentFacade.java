@@ -1,6 +1,6 @@
 package hhplus.concert.application.facade;
 
-import hhplus.concert.application.component.event.PaymentEventPublisher;
+import hhplus.concert.domain.dto.PaymentEventCommand;
 import hhplus.concert.domain.model.Payment;
 import hhplus.concert.domain.model.Point;
 import hhplus.concert.domain.model.Reservation;
@@ -10,7 +10,6 @@ import hhplus.concert.support.aop.DistributedLock;
 import hhplus.concert.support.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +20,7 @@ public class PaymentFacade {
     private final PaymentService paymentService;
     private final PointService pointService;
     private final ConcertService concertService;
-    private final PaymentEventPublisher eventPublisher;
+    private final PaymentEventService paymentEventService;
 
     /**
      * 결제 진행
@@ -29,6 +28,7 @@ public class PaymentFacade {
      */
     @DistributedLock(key = "#lockName")
     public Payment processPayment(String lockName, String token, Long reservationId, Long userId) {
+        /* 1. 도메인 로직 */
         // 예약 검증 (본인인지, 시간 오버 안됐는지)
         Reservation reservation = reservationService.checkReservation(reservationId, userId);
         Seat seat = concertService.getSeat(reservation.seatId());
@@ -41,7 +41,9 @@ public class PaymentFacade {
         queueService.expireToken(token);
         // 결제 내역을 생성한다.
         Payment bill = paymentService.createBill(reserved.id(), userId, seat.seatPrice());
-        eventPublisher.success(bill);
+
+        /* 2. 이벤트 발행 */
+        paymentEventService.publishEvent(PaymentEventCommand.from(bill));
         return bill;
     }
 }
